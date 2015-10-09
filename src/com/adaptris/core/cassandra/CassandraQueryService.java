@@ -4,24 +4,55 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.adaptris.annotation.AutoPopulated;
+import com.adaptris.core.AdaptrisConnection;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ServiceException;
 import com.adaptris.core.ServiceImp;
+import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
+import com.adaptris.core.cassandra.params.NamedParameterApplicator;
+import com.adaptris.core.cassandra.params.NullParameterApplicator;
+import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
 import com.adaptris.core.services.jdbc.ResultSetTranslator;
+import com.adaptris.core.services.jdbc.StatementParameterList;
+import com.adaptris.core.services.jdbc.XmlPayloadTranslator;
 import com.adaptris.interlok.config.DataInputParameter;
 import com.adaptris.jdbc.JdbcResult;
 import com.adaptris.util.license.License;
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+/**
+ * <p>
+ * This service allows us to fire CQL (Cassandra Query Language) queries at a Cassandra cluster, the results of which can be stored into the 
+ * {@Link AdaptrisMessage}.
+ * </p>
+ * <p>
+ * Specify the source of the CQL statement by configuring a {@link DataInputParameter<String>}.  
+ * Note that the CQL statement can contain parameters in one of 2 forms; the standard SQL form, using the character "?", or you can use named parameters.
+ * <br/>
+ * If you configure any parameters, using the standard SQL form, then you will need to configure a {@link SequentialParameterApplicator}, or should you wish to name your parameters
+ * for ease of configuration, especially when statements contain many parameters, then you will need to configure a {@link NamedParameterApplicator}.
+ * </p>
+ * <p>
+ * To configure the values of the parameters configure a {@link StatementParameterList}.
+ * </p>
+ * <p>
+ * Finally the results of the query can be stored in the {@link AdaptrisMessage}, the format and location of which can be configured using {@link ResultSetTranslator}.
+ * </p>
+ * 
+ * @author amcgrath
+ * @config cassandra-query-service
+ * @license ENTERPRISE
+ */
 @XStreamAlias("cassandra-query-service")
 public class CassandraQueryService extends ServiceImp {
 
   @NotNull
   @Valid
-  private CassandraConnection connection;
+  private AdaptrisConnection connection;
   @NotNull
   @AutoPopulated
   @Valid
@@ -29,17 +60,29 @@ public class CassandraQueryService extends ServiceImp {
   @NotNull
   @Valid
   private DataInputParameter<String> statement;
+  @NotNull
+  @Valid
+  @AutoPopulated
+  private CassandraParameterApplicator parameterApplicator;
+  @NotNull
+  @Valid
+  @AutoPopulated
+  private StatementParameterList parameterList;
   
   private transient Session session;
   
   public CassandraQueryService() {
-    
+    this.setParameterApplicator(new NullParameterApplicator());
+    this.setParameterList(new StatementParameterList());
+    this.setResultSetTranslator(new XmlPayloadTranslator());
   }
   
   @Override
   public void doService(AdaptrisMessage message) throws ServiceException {
     try {          
-      ResultSet results = this.getSession().execute(this.getStatement().extract(message));
+      BoundStatement boundStatement = this.getParameterApplicator().applyParameters(this.getSession(), message, this.getParameterList(), this.getStatement().extract(message));
+      ResultSet results = session.execute(boundStatement);
+      
       JdbcResult result = new ResultBuilder().setHasResultSet(true).setResultSet(results).build();
       resultSetTranslator.translate(result, message);
     } catch(Exception ex) {
@@ -54,31 +97,28 @@ public class CassandraQueryService extends ServiceImp {
 
   @Override
   public void close() {
-    this.getConnection().close();
   }
 
   @Override
   public void start() throws CoreException {
-    this.getConnection().start();
-    this.setSession(connection.getCluster().connect(connection.getKeyspace()));
+    this.setSession(((CassandraConnection) connection).getCluster()
+        .connect(((CassandraConnection) connection).getKeyspace()));
   }
   
   @Override
   public void stop() {
     this.getSession().close();
-    this.getConnection().stop();
   }
   
   @Override
   public void init() throws CoreException {
-    this.getConnection().init();
   }
 
-  public CassandraConnection getConnection() {
+  public AdaptrisConnection getConnection() {
     return connection;
   }
 
-  public void setConnection(CassandraConnection connection) {
+  public void setConnection(AdaptrisConnection connection) {
     this.connection = connection;
   }
 
@@ -104,6 +144,23 @@ public class CassandraQueryService extends ServiceImp {
 
   public void setSession(Session session) {
     this.session = session;
+  }
+
+  public CassandraParameterApplicator getParameterApplicator() {
+    return parameterApplicator;
+  }
+
+  public void setParameterApplicator(
+      CassandraParameterApplicator parameterApplicator) {
+    this.parameterApplicator = parameterApplicator;
+  }
+
+  public StatementParameterList getParameterList() {
+    return parameterList;
+  }
+
+  public void setParameterList(StatementParameterList parameterList) {
+    this.parameterList = parameterList;
   }
 
 }
