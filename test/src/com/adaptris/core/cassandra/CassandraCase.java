@@ -1,6 +1,10 @@
 package com.adaptris.core.cassandra;
 
+import com.adaptris.core.AdaptrisConnection;
+import com.adaptris.core.CoreException;
+import com.adaptris.core.Service;
 import com.adaptris.core.ServiceCase;
+import com.adaptris.core.util.LifecycleHelper;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
@@ -65,6 +69,26 @@ public abstract class CassandraCase extends ServiceCase {
         session.close();
         cluster.close();
       }
+    }
+  }
+  
+  protected void shutdown(AdaptrisConnection connection, Service... services) {
+    LifecycleHelper.stop(connection);
+    LifecycleHelper.close(connection);
+    
+    for(Service service : services) {
+      LifecycleHelper.stop(service);
+      LifecycleHelper.close(service);
+    }
+  }
+
+  protected void startup(AdaptrisConnection connection, Service... services) throws CoreException {
+    LifecycleHelper.init(connection);
+    LifecycleHelper.start(connection);
+    
+    for(Service service : services) {
+      LifecycleHelper.stop(service);
+      LifecycleHelper.close(service);
     }
   }
 
