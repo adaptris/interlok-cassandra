@@ -68,9 +68,7 @@ public class CassandraQueryService extends ServiceImp {
   @Valid
   @AutoPopulated
   private StatementParameterList parameterList;
-  
-  private transient Session session;
-  
+    
   public CassandraQueryService() {
     this.setParameterApplicator(new NullParameterApplicator());
     this.setParameterList(new StatementParameterList());
@@ -80,7 +78,8 @@ public class CassandraQueryService extends ServiceImp {
   @Override
   public void doService(AdaptrisMessage message) throws ServiceException {
     try {          
-      BoundStatement boundStatement = this.getParameterApplicator().applyParameters(this.getSession(), message, this.getParameterList(), this.getStatement().extract(message));
+      Session session = (((CassandraConnection) connection).getSession());
+      BoundStatement boundStatement = this.getParameterApplicator().applyParameters(session, message, this.getParameterList(), this.getStatement().extract(message));
       ResultSet results = session.execute(boundStatement);
       
       JdbcResult result = new ResultBuilder().setHasResultSet(true).setResultSet(results).build();
@@ -101,13 +100,10 @@ public class CassandraQueryService extends ServiceImp {
 
   @Override
   public void start() throws CoreException {
-    this.setSession(((CassandraConnection) connection).getCluster()
-        .connect(((CassandraConnection) connection).getKeyspace()));
   }
   
   @Override
   public void stop() {
-    this.getSession().close();
   }
   
   @Override
@@ -136,14 +132,6 @@ public class CassandraQueryService extends ServiceImp {
 
   public void setStatement(DataInputParameter<String> statement) {
     this.statement = statement;
-  }
-
-  public Session getSession() {
-    return session;
-  }
-
-  public void setSession(Session session) {
-    this.session = session;
   }
 
   public CassandraParameterApplicator getParameterApplicator() {

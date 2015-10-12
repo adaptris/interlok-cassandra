@@ -8,6 +8,7 @@ import com.adaptris.util.license.License.LicenseType;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Metadata;
+import com.datastax.driver.core.Session;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -54,6 +55,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class CassandraConnection extends AdaptrisConnectionImp {
 
   private transient Cluster cluster;
+  
+  private transient Session session;
 
   private String connectionUrl;
   
@@ -94,6 +97,7 @@ public class CassandraConnection extends AdaptrisConnectionImp {
       for (Host host : metadata.getAllHosts()) {
         log.debug("Datatacenter: " + host.getDatacenter() + " Host: " + host.getAddress() + " Rack: " + host.getRack());
       }
+      this.setSession(this.getCluster().connect(this.getKeyspace()));
     } catch (Exception ex) {
       throw new CoreException(ex);
     }
@@ -146,6 +150,14 @@ public class CassandraConnection extends AdaptrisConnectionImp {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public Session getSession() {
+    return session;
+  }
+
+  public void setSession(Session session) {
+    this.session = session;
   }
 
 }
