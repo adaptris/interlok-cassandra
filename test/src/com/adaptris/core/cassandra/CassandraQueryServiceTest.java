@@ -3,7 +3,6 @@ package com.adaptris.core.cassandra;
 import java.util.EnumSet;
 
 import com.adaptris.core.AdaptrisMessage;
-import com.adaptris.core.CoreException;
 import com.adaptris.core.DefaultMessageFactory;
 import com.adaptris.core.cassandra.params.NamedParameterApplicator;
 import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
@@ -12,7 +11,6 @@ import com.adaptris.core.services.jdbc.FirstRowMetadataTranslator;
 import com.adaptris.core.services.jdbc.StatementParameter;
 import com.adaptris.core.services.jdbc.StatementParameter.QueryType;
 import com.adaptris.core.stubs.LicenseStub;
-import com.adaptris.core.util.LifecycleHelper;
 
 public class CassandraQueryServiceTest extends CassandraCase {
   
@@ -62,9 +60,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = 'Xabi Alonso'"));
             
-      startup();
+      startup(connection, service);
       service.doService(message);
-      shutdown();
+      shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
     } else
@@ -75,9 +73,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select * from liverpool_transfers where player = 'Xabi Alonso'"));
       
-      startup();
+      startup(connection, service);
       service.doService(message);
-      shutdown();
+      shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
       assertEquals("10700000", message.getMetadataValue("Cassandra_amount"));
@@ -101,9 +99,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
       service.getParameterList().add(parameter);
       service.setParameterApplicator(new SequentialParameterApplicator());
       
-      startup();
+      startup(connection, service);
       service.doService(message);
-      shutdown();
+      shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club")); 
     } else
@@ -125,29 +123,13 @@ public class CassandraQueryServiceTest extends CassandraCase {
       service.getParameterList().add(parameter);
       service.setParameterApplicator(new NamedParameterApplicator());
       
-      startup();
+      startup(connection, service);
       service.doService(message);
-      shutdown();
+      shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club")); 
     } else
       System.out.println("Skipping testSimpleValueQueryWithNamedParameter()");
-  }
-  
-  private void shutdown() {
-    LifecycleHelper.stop(connection);
-    LifecycleHelper.close(connection);
-    
-    LifecycleHelper.stop(service);
-    LifecycleHelper.close(service);
-  }
-
-  private void startup() throws CoreException {
-    LifecycleHelper.init(connection);
-    LifecycleHelper.start(connection);
-    
-    LifecycleHelper.init(service);
-    LifecycleHelper.start(service);
   }
 
   @Override
