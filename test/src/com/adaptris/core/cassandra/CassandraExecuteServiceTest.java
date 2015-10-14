@@ -156,8 +156,11 @@ public class CassandraExecuteServiceTest extends CassandraCase {
   protected Object retrieveObjectForSampleConfig() {
     ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
         "insert into liverpool_transfers(player, amount, club, manager) "
-        + "values ('Fred', 10, 'Accrington Stanley', 'Brendan Rogers')");
+        + "values (?, 10, 'Accrington Stanley', 'Brendan Rogers')");
     service.setStatement(insertStatement);
+    service.setParameterApplicator(new SequentialParameterApplicator());
+    StatementParameter parameter = new StatementParameter("Fred", "java.lang.String", QueryType.constant);
+    service.getParameterList().add(parameter);
     return service;
   }
 
