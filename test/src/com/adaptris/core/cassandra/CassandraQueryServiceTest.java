@@ -4,6 +4,7 @@ import java.util.EnumSet;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
+import com.adaptris.core.cassandra.params.CachedStatementPrimer;
 import com.adaptris.core.cassandra.params.NamedParameterApplicator;
 import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
 import com.adaptris.core.common.ConstantDataInputParameter;
@@ -135,6 +136,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
     service.setStatement(new ConstantDataInputParameter("SELECT * FROM myTable")); 
+    CachedStatementPrimer statementPrimer = new CachedStatementPrimer();
+    statementPrimer.setCacheLimit(25);
+    service.setStatementPrimer(statementPrimer);
     return service;
   }
 

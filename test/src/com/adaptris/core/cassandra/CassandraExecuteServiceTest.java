@@ -2,6 +2,7 @@ package com.adaptris.core.cassandra;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
+import com.adaptris.core.cassandra.params.CachedStatementPrimer;
 import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
 import com.adaptris.core.common.ConstantDataInputParameter;
 import com.adaptris.core.services.jdbc.FirstRowMetadataTranslator;
@@ -160,6 +161,10 @@ public class CassandraExecuteServiceTest extends CassandraCase {
     service.setStatement(insertStatement);
     service.setParameterApplicator(new SequentialParameterApplicator());
     StatementParameter parameter = new StatementParameter("Fred", "java.lang.String", QueryType.constant);
+    
+    CachedStatementPrimer statementPrimer = new CachedStatementPrimer();
+    statementPrimer.setCacheLimit(25);
+    service.setStatementPrimer(statementPrimer);
     service.getParameterList().add(parameter);
     return service;
   }
