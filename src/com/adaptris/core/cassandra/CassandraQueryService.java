@@ -12,7 +12,9 @@ import com.adaptris.core.ServiceImp;
 import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
 import com.adaptris.core.cassandra.params.NamedParameterApplicator;
 import com.adaptris.core.cassandra.params.NullParameterApplicator;
+import com.adaptris.core.cassandra.params.NullStatementPrimer;
 import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
+import com.adaptris.core.cassandra.params.StatementPrimer;
 import com.adaptris.core.services.jdbc.ResultSetTranslator;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.core.services.jdbc.XmlPayloadTranslator;
@@ -68,11 +70,16 @@ public class CassandraQueryService extends ServiceImp {
   @Valid
   @AutoPopulated
   private StatementParameterList parameterList;
+  @NotNull
+  @Valid
+  @AutoPopulated
+  private StatementPrimer statementPrimer;
     
   public CassandraQueryService() {
     this.setParameterApplicator(new NullParameterApplicator());
     this.setParameterList(new StatementParameterList());
     this.setResultSetTranslator(new XmlPayloadTranslator());
+    this.setStatementPrimer(new NullStatementPrimer());
   }
   
   @Override
@@ -108,6 +115,7 @@ public class CassandraQueryService extends ServiceImp {
   
   @Override
   public void init() throws CoreException {
+    this.getParameterApplicator().setStatementPrimer(this.getStatementPrimer());
   }
 
   public AdaptrisConnection getConnection() {
@@ -149,6 +157,14 @@ public class CassandraQueryService extends ServiceImp {
 
   public void setParameterList(StatementParameterList parameterList) {
     this.parameterList = parameterList;
+  }
+
+  public StatementPrimer getStatementPrimer() {
+    return statementPrimer;
+  }
+
+  public void setStatementPrimer(StatementPrimer statementPrimer) {
+    this.statementPrimer = statementPrimer;
   }
 
 }

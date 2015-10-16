@@ -11,6 +11,8 @@ import com.adaptris.core.ServiceException;
 import com.adaptris.core.ServiceImp;
 import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
 import com.adaptris.core.cassandra.params.NullParameterApplicator;
+import com.adaptris.core.cassandra.params.NullStatementPrimer;
+import com.adaptris.core.cassandra.params.StatementPrimer;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.interlok.config.DataInputParameter;
 import com.adaptris.util.license.License;
@@ -35,16 +37,21 @@ public class CassandraExecuteService extends ServiceImp {
   @Valid
   @AutoPopulated
   private StatementParameterList parameterList;
+  @NotNull
+  @Valid
+  @AutoPopulated
+  private StatementPrimer statementPrimer;
   
   public CassandraExecuteService() {
     this.setParameterApplicator(new NullParameterApplicator());
     this.setParameterList(new StatementParameterList());
+    this.setStatementPrimer(new NullStatementPrimer());
   }
 
   @Override
   public void doService(AdaptrisMessage message) throws ServiceException {
     try {
-      Session session = (((CassandraConnection) this.getConnection()).getSession());
+      Session session = (this.getConnection().retrieveConnection(CassandraConnection.class)).getSession();
       BoundStatement boundStatement = this.getParameterApplicator().applyParameters(session, message, this.getParameterList(), this.getStatement().extract(message));
       session.execute(boundStatement);
     } catch(Exception ex) {
@@ -59,6 +66,7 @@ public class CassandraExecuteService extends ServiceImp {
 
   @Override
   public void init() throws CoreException {    
+    this.getParameterApplicator().setStatementPrimer(this.getStatementPrimer());
   }
 
   @Override
@@ -95,6 +103,14 @@ public class CassandraExecuteService extends ServiceImp {
 
   public void setStatement(DataInputParameter<String> statement) {
     this.statement = statement;
+  }
+
+  public StatementPrimer getStatementPrimer() {
+    return statementPrimer;
+  }
+
+  public void setStatementPrimer(StatementPrimer statementPrimer) {
+    this.statementPrimer = statementPrimer;
   }
 
 }
