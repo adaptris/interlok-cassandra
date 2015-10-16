@@ -42,6 +42,11 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * To configure the values of the parameters configure a {@link StatementParameterList}.
  * </p>
  * <p>
+ * You may also configure a {@link StatementPrimer}.  Statement Primers are used to prepare a CQL statement before it is executed.
+ * <br/>
+ * Especially useful may be the {@link CachedStatementPrimer}.  The default value for this service is the {@link NullStatementPrimer}.
+ * </p>
+ * <p>
  * Finally the results of the query can be stored in the {@link AdaptrisMessage}, the format and location of which can be configured using {@link ResultSetTranslator}.
  * </p>
  * 

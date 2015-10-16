@@ -7,6 +7,29 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+/**
+ * <p>
+ * This {@link StatementPrimer} will cache a number of CQL statements, therefore not needing to prepare a statement that has 
+ * already been prepared.
+ * </p>
+ * <p>
+ * Use this StatementPrimer when you know you will execute identical statements over and over.
+ * </p>
+ * <p>
+ * Finally you can configure the number of cached statements (the default being 50) by configuring the "cache-limit";
+ * <pre>
+ * {@code
+ <cached-statement-primer>
+   <cache-limit>50</cache-limit>
+ </cached-statement-primer>
+ * }
+ * </pre>
+ * </p>
+ * 
+ * @author Aaron
+ * @config cached-statement-primer
+ * 
+ */
 @XStreamAlias("cached-statement-primer")
 public class CachedStatementPrimer implements StatementPrimer {
 
