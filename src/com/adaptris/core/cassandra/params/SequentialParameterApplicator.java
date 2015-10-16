@@ -20,7 +20,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  */
 @XStreamAlias("cassandra-sequential-parameter-applicator")
-public class SequentialParameterApplicator implements CassandraParameterApplicator {
+public class SequentialParameterApplicator extends AbstractCassandraParameterApplicator {
   
   public SequentialParameterApplicator() {  
   }
@@ -34,7 +34,12 @@ public class SequentialParameterApplicator implements CassandraParameterApplicat
       counter ++;
     }
     
-    PreparedStatement preparedStatement = session.prepare(statement); 
+    PreparedStatement preparedStatement;
+    try {
+      preparedStatement = this.prepareStatement(session, statement);
+    } catch (Exception e) {
+      throw new ServiceException(e);
+    } 
     BoundStatement boundStatement = new BoundStatement(preparedStatement);
     
     return boundStatement.bind(parameterArray);

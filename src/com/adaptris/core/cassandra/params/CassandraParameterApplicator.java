@@ -18,4 +18,6 @@ public interface CassandraParameterApplicator {
 
   public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException;
   
+  public void setStatementPrimer(StatementPrimer statementPrimer);
+  
 }

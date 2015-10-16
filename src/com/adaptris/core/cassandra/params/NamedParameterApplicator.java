@@ -39,7 +39,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  */
 @XStreamAlias("cassandra-named-parameter-applicator")
-public class NamedParameterApplicator implements CassandraParameterApplicator {
+public class NamedParameterApplicator extends AbstractCassandraParameterApplicator {
   
   protected transient Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -63,7 +63,12 @@ public class NamedParameterApplicator implements CassandraParameterApplicator {
   public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
     String formattedStatement = statement.replaceAll(getParameterNameRegex(), "?");
 
-    PreparedStatement preparedStatement = session.prepare(formattedStatement); 
+    PreparedStatement preparedStatement;
+    try {
+      preparedStatement = this.prepareStatement(session, formattedStatement);
+    } catch (Exception e) {
+      throw new ServiceException(e);
+    } 
     BoundStatement boundStatement = new BoundStatement(preparedStatement);
     
     Matcher m = Pattern.compile(this.getParameterNameRegex()).matcher(statement);

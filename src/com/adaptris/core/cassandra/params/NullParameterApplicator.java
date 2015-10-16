@@ -1,6 +1,7 @@
 package com.adaptris.core.cassandra.params;
 
 import com.adaptris.core.AdaptrisMessage;
+import com.adaptris.core.ServiceException;
 import com.adaptris.core.services.jdbc.StatementParameterCollection;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -16,14 +17,19 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  *
  */
 @XStreamAlias("cassandra-null-parameter-applicator")
-public class NullParameterApplicator implements CassandraParameterApplicator {
+public class NullParameterApplicator extends AbstractCassandraParameterApplicator {
 
   public NullParameterApplicator() {
   }
   
   @Override
-  public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) {
-    PreparedStatement preparedStatement = session.prepare(statement); 
+  public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
+    PreparedStatement preparedStatement;
+    try {
+      preparedStatement = this.prepareStatement(session, statement);
+    } catch (Exception e) {
+      throw new ServiceException(e);
+    } 
     return new BoundStatement(preparedStatement);
   }
 
