@@ -8,17 +8,16 @@ import com.adaptris.core.AdaptrisConnection;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ServiceException;
-import com.adaptris.core.ServiceImp;
-import com.adaptris.core.cassandra.params.CachedStatementPrimer;
 import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
-import com.adaptris.core.cassandra.params.NamedParameterApplicator;
 import com.adaptris.core.cassandra.params.NullParameterApplicator;
 import com.adaptris.core.cassandra.params.NullStatementPrimer;
-import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
 import com.adaptris.core.cassandra.params.StatementPrimer;
+import com.adaptris.core.licensing.License;
+import com.adaptris.core.licensing.License.LicenseType;
+import com.adaptris.core.licensing.LicenseChecker;
+import com.adaptris.core.licensing.LicensedService;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.interlok.config.DataInputParameter;
-import com.adaptris.util.license.License;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Session;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -53,7 +52,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @license ENTERPRISE
  */
 @XStreamAlias("cassandra-execute-service")
-public class CassandraExecuteService extends ServiceImp {
+public class CassandraExecuteService extends LicensedService {
   
   @NotNull
   @Valid
@@ -92,17 +91,22 @@ public class CassandraExecuteService extends ServiceImp {
   }
 
   @Override
-  public boolean isEnabled(License license) throws CoreException {
-    return license.isEnabled(License.LicenseType.Enterprise);
+  protected void prepareService() throws CoreException {
+    LicenseChecker.newChecker().checkLicense(this);
   }
 
   @Override
-  public void init() throws CoreException {    
+  public boolean isEnabled(License license) {
+    return license.isEnabled(LicenseType.Enterprise);
+  }
+
+  @Override
+  protected void initService() throws CoreException {
     this.getParameterApplicator().setStatementPrimer(this.getStatementPrimer());
   }
 
   @Override
-  public void close() {    
+  protected void closeService() {
   }
 
   public AdaptrisConnection getConnection() {
