@@ -8,14 +8,12 @@ import com.adaptris.core.AdaptrisConnection;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ServiceException;
+import com.adaptris.core.ServiceImp;
+import com.adaptris.core.cassandra.params.CachedStatementPrimer;
 import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
 import com.adaptris.core.cassandra.params.NullParameterApplicator;
 import com.adaptris.core.cassandra.params.NullStatementPrimer;
 import com.adaptris.core.cassandra.params.StatementPrimer;
-import com.adaptris.core.licensing.License;
-import com.adaptris.core.licensing.License.LicenseType;
-import com.adaptris.core.licensing.LicenseChecker;
-import com.adaptris.core.licensing.LicensedService;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.interlok.config.DataInputParameter;
 import com.datastax.driver.core.BoundStatement;
@@ -55,7 +53,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @license ENTERPRISE
  */
 @XStreamAlias("cassandra-execute-service")
-public class CassandraExecuteService extends LicensedService {
+public class CassandraExecuteService extends ServiceImp {
   
   @NotNull
   @Valid
@@ -94,13 +92,7 @@ public class CassandraExecuteService extends LicensedService {
   }
 
   @Override
-  protected void prepareService() throws CoreException {
-    LicenseChecker.newChecker().checkLicense(this);
-  }
-
-  @Override
-  public boolean isEnabled(License license) {
-    return license.isEnabled(LicenseType.Enterprise);
+  public void prepare() throws CoreException {
   }
 
   @Override

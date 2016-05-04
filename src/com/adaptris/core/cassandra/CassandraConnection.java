@@ -2,10 +2,6 @@ package com.adaptris.core.cassandra;
 
 import com.adaptris.core.AdaptrisConnectionImp;
 import com.adaptris.core.CoreException;
-import com.adaptris.core.licensing.License;
-import com.adaptris.core.licensing.License.LicenseType;
-import com.adaptris.core.licensing.LicenseChecker;
-import com.adaptris.core.licensing.LicensedComponent;
 import com.adaptris.security.password.Password;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
@@ -54,7 +50,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @license ENTERPRISE
  */
 @XStreamAlias("cassandra-connection")
-public class CassandraConnection extends AdaptrisConnectionImp implements LicensedComponent {
+public class CassandraConnection extends AdaptrisConnectionImp {
 
   private transient Cluster cluster;
   
@@ -73,14 +69,7 @@ public class CassandraConnection extends AdaptrisConnectionImp implements Licens
   }
 
   @Override
-  public boolean isEnabled(License license) {
-    return license.isEnabled(LicenseType.Enterprise);
-  }
-
-
-  @Override
   protected void prepareConnection() throws CoreException {
-    LicenseChecker.newChecker().checkLicense(this);
   }
 
 
