@@ -66,7 +66,8 @@ public abstract class CassandraCase extends ServiceCase {
         session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Xabi Alonso', 'Real Sociedad',10700000,'Rafael Benitez')");
         
       } finally {
-        session.close();
+        if(session != null)
+          session.close();
         cluster.close();
       }
     }

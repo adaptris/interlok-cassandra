@@ -7,7 +7,7 @@ import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
 import com.adaptris.core.common.ConstantDataInputParameter;
 import com.adaptris.core.services.jdbc.FirstRowMetadataTranslator;
 import com.adaptris.core.services.jdbc.StatementParameter;
-import com.adaptris.core.services.jdbc.StatementParameter.QueryType;
+import com.adaptris.core.services.jdbc.StatementParameterImpl.QueryType;
 
 public class CassandraExecuteServiceTest extends CassandraCase {
   
