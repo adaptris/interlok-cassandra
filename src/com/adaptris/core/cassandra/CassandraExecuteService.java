@@ -24,6 +24,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * <p>
+ * Built for Cassandra version 3.0+
+ * </p>
+ * <p>
  * This service allows us to fire CQL (Cassandra Query Language) statements at a Cassandra cluster.
  * <br/>
  * Typical uses will be for inserting and deleting rows the databases tables.

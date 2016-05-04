@@ -28,6 +28,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * <p>
+ * Built for Cassandra version 3.0+
+ * </p>
+ * <p>
  * This service allows us to fire CQL (Cassandra Query Language) queries at a Cassandra cluster, the results of which can be stored into the 
  * {@Link AdaptrisMessage}.
  * </p>
