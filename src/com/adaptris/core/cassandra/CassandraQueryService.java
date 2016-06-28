@@ -8,14 +8,12 @@ import com.adaptris.core.AdaptrisConnection;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ServiceException;
+import com.adaptris.core.ServiceImp;
+import com.adaptris.core.cassandra.params.CachedStatementPrimer;
 import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
 import com.adaptris.core.cassandra.params.NullParameterApplicator;
 import com.adaptris.core.cassandra.params.NullStatementPrimer;
 import com.adaptris.core.cassandra.params.StatementPrimer;
-import com.adaptris.core.licensing.License;
-import com.adaptris.core.licensing.License.LicenseType;
-import com.adaptris.core.licensing.LicenseChecker;
-import com.adaptris.core.licensing.LicensedService;
 import com.adaptris.core.services.jdbc.ResultSetTranslator;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.core.services.jdbc.XmlPayloadTranslator;
@@ -27,6 +25,9 @@ import com.datastax.driver.core.Session;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
+ * <p>
+ * Built for Cassandra version 3.0+
+ * </p>
  * <p>
  * This service allows us to fire CQL (Cassandra Query Language) queries at a Cassandra cluster, the results of which can be stored into the 
  * {@Link AdaptrisMessage}.
@@ -55,7 +56,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @license ENTERPRISE
  */
 @XStreamAlias("cassandra-query-service")
-public class CassandraQueryService extends LicensedService {
+public class CassandraQueryService extends ServiceImp {
 
   @NotNull
   @Valid
@@ -102,14 +103,9 @@ public class CassandraQueryService extends LicensedService {
   }
 
   @Override
-  protected void prepareService() throws CoreException {
-    LicenseChecker.newChecker().checkLicense(this);
+  public void prepare() throws CoreException {
   }
 
-  @Override
-  public boolean isEnabled(License license) {
-    return license.isEnabled(LicenseType.Enterprise);
-  }
 
   @Override
   protected void initService() throws CoreException {

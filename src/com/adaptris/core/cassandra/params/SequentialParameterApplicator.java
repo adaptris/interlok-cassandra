@@ -2,6 +2,7 @@ package com.adaptris.core.cassandra.params;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ServiceException;
+import com.adaptris.core.services.jdbc.JdbcStatementParameter;
 import com.adaptris.core.services.jdbc.StatementParameter;
 import com.adaptris.core.services.jdbc.StatementParameterCollection;
 import com.datastax.driver.core.BoundStatement;
@@ -29,8 +30,10 @@ public class SequentialParameterApplicator extends AbstractCassandraParameterApp
   public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
     Object[] parameterArray = new Object[parameters.size()];
     int counter = 0;
-    for(StatementParameter sParam : parameters) {
-      parameterArray[counter] = sParam.convertToQueryClass(sParam.getQueryValue(message));
+    
+    for(JdbcStatementParameter jdbcParam : parameters) {
+      StatementParameter sParam = (StatementParameter) jdbcParam;
+      parameterArray[counter] = ParameterHelper.convertToQueryClass(sParam.getQueryValue(message), sParam.getQueryClass());
       counter ++;
     }
     

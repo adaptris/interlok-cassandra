@@ -76,11 +76,11 @@ public class NamedParameterApplicator extends AbstractCassandraParameterApplicat
     ArrayList<Object> foundParameters = new ArrayList<>();
     while (m.find()) {
       String parameterName = m.group();
-      StatementParameter statementParameter = parameters.getParameterByName(parameterName.substring(this.getParameterNamePrefix().length()));
+      StatementParameter statementParameter = (StatementParameter) parameters.getParameterByName(parameterName.substring(this.getParameterNamePrefix().length()));
       if (statementParameter == null)
         throw new ServiceException("Parameter " + parameterName + ", cannot be found in the configured parameter list");
 
-      foundParameters.add(statementParameter.convertToQueryClass(statementParameter.getQueryValue(message)));
+      foundParameters.add(ParameterHelper.convertToQueryClass(statementParameter.getQueryValue(message), statementParameter.getQueryClass()));
     }
     
     return boundStatement.bind(foundParameters.toArray());

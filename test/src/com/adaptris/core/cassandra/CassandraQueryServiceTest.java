@@ -1,17 +1,14 @@
 package com.adaptris.core.cassandra;
 
-import java.util.EnumSet;
-
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
 import com.adaptris.core.cassandra.params.CachedStatementPrimer;
 import com.adaptris.core.cassandra.params.NamedParameterApplicator;
 import com.adaptris.core.cassandra.params.SequentialParameterApplicator;
 import com.adaptris.core.common.ConstantDataInputParameter;
-import com.adaptris.core.licensing.License.LicenseType;
 import com.adaptris.core.services.jdbc.FirstRowMetadataTranslator;
 import com.adaptris.core.services.jdbc.StatementParameter;
-import com.adaptris.core.services.jdbc.StatementParameter.QueryType;
+import com.adaptris.core.services.jdbc.StatementParameterImpl.QueryType;
 
 public class CassandraQueryServiceTest extends CassandraCase {
   
@@ -43,18 +40,6 @@ public class CassandraQueryServiceTest extends CassandraCase {
   
   public void tearDown() throws Exception {
     
-  }
-  
-  public void testServiceEnterpriseLicense() throws Exception {
-    assertFalse(service.isEnabled(new LicenseStub(EnumSet.of(LicenseType.Basic))));
-    assertFalse(service.isEnabled(new LicenseStub(EnumSet.of(LicenseType.Basic, LicenseType.Standard))));
-    assertTrue(service.isEnabled(new LicenseStub(EnumSet.of(LicenseType.Basic, LicenseType.Standard, LicenseType.Enterprise))));
-  }
-  
-  public void testConnectionEnterpriseLicense() throws Exception {
-    assertFalse(connection.isEnabled(new LicenseStub(EnumSet.of(LicenseType.Basic))));
-    assertFalse(connection.isEnabled(new LicenseStub(EnumSet.of(LicenseType.Basic, LicenseType.Standard))));
-    assertTrue(connection.isEnabled(new LicenseStub(EnumSet.of(LicenseType.Basic, LicenseType.Standard, LicenseType.Enterprise))));
   }
   
   public void testSimpleValueQuery() throws Exception {
