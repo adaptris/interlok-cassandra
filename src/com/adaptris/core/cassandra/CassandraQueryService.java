@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.core.AdaptrisConnection;
+import com.adaptris.core.ConnectedService;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ServiceException;
@@ -56,7 +57,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @license ENTERPRISE
  */
 @XStreamAlias("cassandra-query-service")
-public class CassandraQueryService extends ServiceImp {
+public class CassandraQueryService extends ServiceImp implements ConnectedService {
 
   @NotNull
   @Valid
