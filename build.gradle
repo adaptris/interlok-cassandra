@@ -10,7 +10,7 @@ ext {
   javadocsBaseUrl = "https://development.adaptris.net/nexus/content/sites/javadocs/com/adaptris"
   interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
   interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
-  componentName='Interlok/CSV'
+  componentName='Interlok/Cassandra'
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.25'
@@ -135,11 +135,6 @@ javadoc {
       ]
     taglets = ["com.adaptris.taglet.ConfigTaglet", "com.adaptris.taglet.LicenseTaglet"]
     options.addStringOption "tagletpath", configurations.javadoc.asPath
-    options.group("Base CSV preferences", ["com.adaptris.csv.*", "com.adaptris.csv"]).
-      group ("Transformation/Validation", ["com.adaptris.core.transform.csv.*" , "com.adaptris.core.transform.csv"]).
-      group ("JDBC ", ["com.adaptris.csv.jdbc", "com.adaptris.core.csv.jdbc.*"])
-      group ("Splitting", ["com.adaptris.csv.splitter", "com.adaptris.csv.splitter.*"])
-
     title= componentName
   }
 }
@@ -233,11 +228,10 @@ publishing {
       artifact sourcesJar { classifier "sources" }
 
       pom.withXml {
-        asNode().appendNode("description", "Handling CSV files using Interlok; transform to XML, splitting, JDBC utilities")
+        asNode().appendNode("description", "Services to interace with Cassandra")
         def properties = asNode().appendNode("properties")
-        properties.appendNode("url", "http://interlok.adaptris.net/interlok-docs/cookbook-csv-transform.html")
         properties.appendNode("target", "3.8.0+")
-        properties.appendNode("tags", "csv,transform,jdbc")
+        properties.appendNode("tags", "csv,database,cassandra")
         properties.appendNode("license", "false")
       }
     }
