@@ -75,8 +75,8 @@ dependencies {
   compile ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
   compile ("com.adaptris:interlok-common:$interlokCoreVersion") { changing= true}
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
-  compile ("com.datastax.cassandra:cassandra-driver-core:3.0.0")
-  compile ("com.datastax.cassandra:cassandra-driver-mapping:3.0.0")
+  compile ("com.datastax.cassandra:cassandra-driver-core:3.5.1")
+  compile ("com.datastax.cassandra:cassandra-driver-mapping:3.5.1")
 
   annotationProcessor ("com.adaptris:interlok-common:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.0.18")
