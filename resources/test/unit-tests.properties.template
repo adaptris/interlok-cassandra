@@ -1,4 +1,0 @@
-junit.CassandraServiceCase.baseDir=${basedir}/build/example-xml
-junit.CassandraServiceCase.enabled=false
-junit.CassandraServiceCase.host=localhost
-junit.CassandraServiceCase.keyspace=INTERLOK_KS
