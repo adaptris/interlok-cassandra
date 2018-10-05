@@ -27,6 +27,9 @@ public abstract class CassandraCase extends ServiceCase {
    */
   public static final String TESTS_KEYSPACE_KEY = "CassandraServiceCase.keyspace";
 
+  protected static final String TEST_USERNAME = "dba";
+  protected static final String TEST_PASSWORD = "bacon";
+
   protected boolean testsEnabled;
   
   public CassandraCase(String name) {
@@ -45,6 +48,7 @@ public abstract class CassandraCase extends ServiceCase {
       try {
         cluster = Cluster.builder()
             .addContactPoint(PROPERTIES.getProperty(TESTS_HOST_KEY))
+            .withCredentials(TEST_USERNAME, TEST_PASSWORD)
             .build();
         
         session = cluster.connect(PROPERTIES.getProperty(TESTS_KEYSPACE_KEY));

@@ -28,6 +28,8 @@ public class CassandraExecuteServiceTest extends CassandraCase {
     connection.setUniqueId("CassandraConnection");
     connection.setConnectionUrl(PROPERTIES.getProperty(TESTS_HOST_KEY, "localhost"));
     connection.setKeyspace(PROPERTIES.getProperty(TESTS_KEYSPACE_KEY, "INTERLOK_KS"));
+    connection.setUsername(TEST_USERNAME);
+    connection.setPassword(TEST_PASSWORD);
     
     service = new CassandraExecuteService();
     service.setConnection(connection);
