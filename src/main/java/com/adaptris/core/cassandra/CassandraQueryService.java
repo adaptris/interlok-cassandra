@@ -5,8 +5,8 @@ import javax.validation.constraints.NotNull;
 
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.core.AdaptrisConnection;
-import com.adaptris.core.ConnectedService;
 import com.adaptris.core.AdaptrisMessage;
+import com.adaptris.core.ConnectedService;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ServiceException;
 import com.adaptris.core.ServiceImp;
@@ -30,26 +30,29 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * Built for Cassandra version 3.0+
  * </p>
  * <p>
- * This service allows us to fire CQL (Cassandra Query Language) queries at a Cassandra cluster, the results of which can be stored into the 
- * {@Link AdaptrisMessage}.
+ * This service allows us to fire CQL (Cassandra Query Language) queries at a Cassandra cluster, the results of which can be stored
+ * into the {@link AdaptrisMessage}.
  * </p>
  * <p>
- * Specify the source of the CQL statement by configuring a {@link DataInputParameter<String>}.  
- * Note that the CQL statement can contain parameters in one of 2 forms; the standard SQL form, using the character "?", or you can use named parameters.
- * <br/>
- * If you configure any parameters, using the standard SQL form, then you will need to configure a {@link SequentialParameterApplicator}, or should you wish to name your parameters
- * for ease of configuration, especially when statements contain many parameters, then you will need to configure a {@link NamedParameterApplicator}.
+ * Specify the source of the CQL statement by configuring a {@link DataInputParameter}. Note that the CQL statement can contain
+ * parameters in one of 2 forms; the standard SQL form, using the character "?", or you can use named parameters. <br/>
+ * If you configure any parameters, using the standard SQL form, then you will need to configure a
+ * {@link com.adaptris.core.cassandra.params.SequentialParameterApplicator}, or should you wish to name your parameters for ease of
+ * configuration, especially when statements contain many parameters, then you will need to configure a
+ * {@link com.adaptris.core.cassandra.params.NamedParameterApplicator}.
  * </p>
  * <p>
  * To configure the values of the parameters configure a {@link StatementParameterList}.
  * </p>
  * <p>
- * You may also configure a {@link StatementPrimer}.  Statement Primers are used to prepare a CQL statement before it is executed.
+ * You may also configure a {@link StatementPrimer}. Statement Primers are used to prepare a CQL statement before it is executed.
  * <br/>
- * Especially useful may be the {@link CachedStatementPrimer}.  The default value for this service is the {@link NullStatementPrimer}.
+ * Especially useful may be the {@link CachedStatementPrimer}. The default value for this service is the
+ * {@link NullStatementPrimer}.
  * </p>
  * <p>
- * Finally the results of the query can be stored in the {@link AdaptrisMessage}, the format and location of which can be configured using {@link ResultSetTranslator}.
+ * Finally the results of the query can be stored in the {@link AdaptrisMessage}, the format and location of which can be configured
+ * using {@link ResultSetTranslator}.
  * </p>
  * 
  * @author amcgrath

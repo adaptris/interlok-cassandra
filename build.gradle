@@ -9,6 +9,8 @@ ext {
   repoUsername = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : 'unknown'
   repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : 'unknown'
   defaultNexusRepo = project.hasProperty('defaultNexusRepo') ? project.getProperty('defaultNexusRepo') : 'https://repo1.maven.org/maven2/'
+  offlineJavadocPackageDir = new File(project.buildDir, "offline-javadoc-packages")
+
   interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
   interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
   componentName='Interlok/Cassandra'
@@ -58,6 +60,7 @@ repositories {
 configurations {
   javadoc {}
   umlDoclet {}
+  offlineJavadocPackages {}
   all*.exclude group: 'c3p0'
   all*.exclude group: 'commons-logging'
   all*.exclude group: 'javamail'
@@ -84,8 +87,8 @@ dependencies {
     exclude group: "com.google.guava", module: "guava"
   }
   compile ("com.google.guava:guava:27.0.1-jre")
-  annotationProcessor ("com.adaptris:interlok-common:$interlokCoreVersion") {changing= true}
-  umlDoclet("nl.talsmasoftware:umldoclet:1.1.2")
+  annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
+  umlDoclet("nl.talsmasoftware:umldoclet:1.1.3")
 
   testCompile ('junit:junit:4.12')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
@@ -94,6 +97,9 @@ dependencies {
   testCompile ("org.apache.logging.log4j:log4j-api:$log4j2Version")
   testCompile ("org.mockito:mockito-all:1.10.19")
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
+
+  offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
+  offlineJavadocPackages ("com.adaptris:interlok-common:$interlokCoreVersion:javadoc@jar") { changing= true}
 
 }
 
@@ -130,13 +136,26 @@ task generateVersion {
   }
 }
 
+task offlinePackageList(type: Copy) {
+  description 'Build an offline package-list for javadocs'
+  group 'Documentation'
+
+  project.configurations.offlineJavadocPackages.collect { dependency ->
+    from(zipTree(dependency)) {
+      into dependency.name
+    }
+  }
+  include "package-list"
+  into offlineJavadocPackageDir
+}
 
 javadoc {
+  onlyIf {
+    !hasGraphViz()
+  }
   configure(options) {
-      links = [
-        interlokJavadocs,
-        interlokCommonJavadocs,
-      ]
+    options.linksOffline(interlokJavadocs, offlineJavadocPackageDir.getCanonicalPath() + "/interlok-core-$interlokCoreVersion-javadoc.jar")
+    options.linksOffline(interlokCommonJavadocs, offlineJavadocPackageDir.getCanonicalPath() + "/interlok-common-$interlokCoreVersion-javadoc.jar")
     taglets = ["com.adaptris.taglet.ConfigTaglet", "com.adaptris.taglet.LicenseTaglet"]
     options.addStringOption "tagletpath", configurations.javadoc.asPath
     title= componentName
@@ -185,10 +204,8 @@ task umlJavadoc(type: Javadoc) {
   source = sourceSets.main.allJava
   classpath = project.sourceSets.main.compileClasspath
   configure(options) {
-      links = [
-        interlokJavadocs,
-        interlokCommonJavadocs,
-      ]
+    options.linksOffline(interlokJavadocs, offlineJavadocPackageDir.getCanonicalPath() + "/interlok-core-$interlokCoreVersion-javadoc.jar")
+    options.linksOffline(interlokCommonJavadocs, offlineJavadocPackageDir.getCanonicalPath() + "/interlok-common-$interlokCoreVersion-javadoc.jar")
     taglets = ["com.adaptris.taglet.ConfigTaglet", "com.adaptris.taglet.LicenseTaglet"]
     options.addStringOption "tagletpath", configurations.javadoc.asPath
     options.docletpath = configurations.umlDoclet.files.asType(List)
@@ -212,7 +229,7 @@ task umlJavadoc(type: Javadoc) {
   }
 }
 
-javadoc.dependsOn umlJavadoc
+javadoc.dependsOn offlinePackageList, umlJavadoc
 clean.dependsOn deleteDerbyLog
 check.dependsOn jacocoTestReport
 
