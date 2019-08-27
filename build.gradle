@@ -22,9 +22,9 @@ ext {
   componentName='Interlok/Cassandra'
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
-  slf4jVersion = '1.7.26'
-  log4j2Version = '2.11.2'
-  cassandraVersion = '3.6.0'
+  slf4jVersion = '1.7.27'
+  log4j2Version = '2.12.1'
+  cassandraVersion = '3.7.2'
 }
 
 ext.hasGraphViz = { ->
