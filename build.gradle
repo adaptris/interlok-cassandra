@@ -92,7 +92,7 @@ dependencies {
   compile ("com.datastax.cassandra:cassandra-driver-mapping:$cassandraVersion") {
     exclude group: "com.google.guava", module: "guava"
   }
-  compile ("com.google.guava:guava:28.0-jre")
+  compile ("com.google.guava:guava:28.1-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.1.4")
 
