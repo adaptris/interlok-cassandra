@@ -1,6 +1,6 @@
 package com.adaptris.core.cassandra.params;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.datastax.driver.core.PreparedStatement;
 
