@@ -32,8 +32,8 @@ public abstract class CassandraCase extends ServiceCase {
 
   protected boolean testsEnabled;
   
-  public CassandraCase(String name) {
-    super(name);
+  public CassandraCase() {
+    super();
     
     if (PROPERTIES.getProperty(BASE_DIR_KEY) != null) {
       setBaseDir(PROPERTIES.getProperty(BASE_DIR_KEY));

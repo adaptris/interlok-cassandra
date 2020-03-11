@@ -1,5 +1,9 @@
 package com.adaptris.core.cassandra;
 
+import static org.junit.Assert.assertEquals;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
 import com.adaptris.core.cassandra.params.CachedStatementPrimer;
@@ -18,10 +22,11 @@ public class CassandraQueryServiceTest extends CassandraCase {
   
   private AdaptrisMessage message;
   
-  public CassandraQueryServiceTest(String name) {
-    super(name);
+  public CassandraQueryServiceTest() {
+    super();
   }
 
+  @Before
   public void setUp() throws Exception {
     connection = new CassandraConnection();
     connection.setUniqueId("CassandraConnection");
@@ -40,10 +45,11 @@ public class CassandraQueryServiceTest extends CassandraCase {
     message = DefaultMessageFactory.getDefaultInstance().newMessage();
   }
   
+  @After
   public void tearDown() throws Exception {
-    
   }
   
+  @Test
   public void testSimpleValueQuery() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = 'Xabi Alonso'"));
@@ -57,6 +63,7 @@ public class CassandraQueryServiceTest extends CassandraCase {
       System.out.println("Skipping testSimpleValueQuery()");
   }
 
+  @Test
   public void testSimpleRowQuery() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select * from liverpool_transfers where player = 'Xabi Alonso'"));
@@ -73,6 +80,7 @@ public class CassandraQueryServiceTest extends CassandraCase {
       System.out.println("Skipping testSimpleRowQuery()");
   }
   
+  @Test
   public void testSimpleValueQueryWithSimpleParameter() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = ?"));
@@ -96,6 +104,7 @@ public class CassandraQueryServiceTest extends CassandraCase {
       System.out.println("Skipping testSimpleValueQueryWithSimpleParameter()");
   }
   
+  @Test
   public void testSimpleValueQueryWithNamedParameter() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = #playername"));
@@ -127,6 +136,11 @@ public class CassandraQueryServiceTest extends CassandraCase {
     statementPrimer.setCacheLimit(25);
     service.setStatementPrimer(statementPrimer);
     return service;
+  }
+
+  @Override
+  public boolean isAnnotatedForJunit4() {
+    return true;
   }
 
 }
