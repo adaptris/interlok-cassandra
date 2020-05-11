@@ -4,7 +4,7 @@ plugins {
   id 'maven'
   id 'maven-publish'
   id  "jacoco"
-  id 'com.github.spotbugs' version '3.0.0'
+  id 'com.github.spotbugs' version '4.0.5'
 }
 ext {
   interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.10-SNAPSHOT'
@@ -23,7 +23,7 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.30'
-  log4j2Version = '2.13.0'
+  log4j2Version = '2.13.2'
   cassandraVersion = '3.8.0'
 }
 
@@ -95,6 +95,11 @@ configurations {
   all*.exclude group: 'net.sf.saxon', module: 'saxon'
   all*.exclude group: 'org.codehaus.woodstox'
   all*.exclude group: 'org.eclipse.jetty.orbit', module: 'javax.mail.glassfish'
+  // INTERLOK-3197 exclude old javax.mail
+  all*.exclude group: 'com.sun.mail', module: 'javax.mail'
+  all*.exclude group: 'javax.validation', module: 'validation-api'
+  all*.exclude group: 'javax.activation', module: 'activation'
+  all*.exclude group: 'javax.activation', module: 'javax.activation-api'
 }
 
 configurations.all {
@@ -116,9 +121,9 @@ dependencies {
     exclude group: "com.google.guava", module: "guava"
   }
 
-  compile ("com.fasterxml.jackson.core:jackson-databind:2.10.2")
-  compile ("com.fasterxml.jackson.core:jackson-core:2.10.2")
-  compile ("com.google.guava:guava:28.2-jre")
+  compile ("com.fasterxml.jackson.core:jackson-databind:2.10.3")
+  compile ("com.fasterxml.jackson.core:jackson-core:2.10.3")
+  compile ("com.google.guava:guava:29.0-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.1.4")
 
@@ -294,25 +299,26 @@ publishing {
   }
 }
 
-spotbugs {
+spotbugsMain {
+  effort = "max"
+  reportLevel = "high"
   // showProgress = "true"
   effort = "max"
   // Ignore failures?
   // ignoreFailures = false
-
-  // We only care about "high priority" issues...
-  reportLevel = "high"
+  reports {
+    xml {
+      enabled = false
+    }
+    html {
+      enabled = true
+    }
+  }
 }
 
 // disable spotbugsTests which checks our test code..
 spotbugsTest.enabled = false
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
-  reports {
-    xml.enabled = false
-    html.enabled = true
-  }
-}
 
 javadoc.dependsOn offlinePackageList, umlJavadoc
 clean.dependsOn deleteDerbyLog
