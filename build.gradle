@@ -24,7 +24,7 @@ ext {
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.30'
   log4j2Version = '2.13.2'
-  cassandraVersion = '3.8.0'
+  cassandraVersion = '3.9.0'
 }
 
 ext.hasGraphViz = { ->
