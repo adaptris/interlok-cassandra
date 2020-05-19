@@ -5,6 +5,7 @@ plugins {
   id 'maven-publish'
   id  "jacoco"
   id 'com.github.spotbugs' version '4.2.0'
+  id 'org.owasp.dependencycheck' version '5.3.2.1'
 }
 ext {
   interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.10-SNAPSHOT'
@@ -25,6 +26,7 @@ ext {
   slf4jVersion = '1.7.30'
   log4j2Version = '2.13.2'
   cassandraVersion = '3.9.0'
+  nettyVersion='4.1.50.Final'
 }
 
 ext.hasGraphViz = { ->
@@ -114,12 +116,19 @@ dependencies {
     exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
     exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
     exclude group: "com.google.guava", module: "guava"
+    exclude group : "io.netty"
   }
   compile ("com.datastax.cassandra:cassandra-driver-mapping:$cassandraVersion") {
     exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
     exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
     exclude group: "com.google.guava", module: "guava"
+    exclude group : "io.netty"
   }
+
+  // Minimal netty specification
+  implementation ("io.netty:netty-handler:$nettyVersion")
+  implementation ("io.netty:netty-transport-native-epoll:$nettyVersion")
+  implementation ("io.netty:netty-codec:$nettyVersion")
 
   compile ("com.fasterxml.jackson.core:jackson-databind:2.11.0")
   compile ("com.fasterxml.jackson.core:jackson-core:2.11.0")
@@ -316,6 +325,17 @@ spotbugsMain {
     html {
       enabled = true
     }
+  }
+}
+
+dependencyCheck  {
+  suppressionFiles= [ "https://raw.githubusercontent.com/adaptris/interlok/develop/gradle/owasp-exclude.xml" , "$rootDir/gradle/owasp-exclude.xml" ]
+  skipConfigurations = [ "antSql", "spotbugs", "umlDoclet", "offlineJavadocPackages", "javadoc" ]
+  formats = [ "HTML", "JUNIT" ]
+  junitFailOnCVSS = 7.0
+  failBuildOnCVSS = 7.0
+  analyzers {
+    assemblyEnabled=false
   }
 }
 
