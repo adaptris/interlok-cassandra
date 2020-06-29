@@ -131,7 +131,7 @@ dependencies {
   implementation ("io.netty:netty-codec:$nettyVersion")
 
   compile ("com.fasterxml.jackson.core:jackson-databind:2.11.0")
-  compile ("com.fasterxml.jackson.core:jackson-core:2.11.0")
+  compile ("com.fasterxml.jackson.core:jackson-core:2.11.1")
   compile ("com.google.guava:guava:29.0-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.1.4")
