@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+<suppress>
+   <notes><![CDATA[
+   file name: cassandra-driver-*-3.9.0.jar
+   - appears to relate directly to the actual cassandra impl, and not our client use
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/com\.datastax\.cassandra/cassandra.*$</packageUrl>
+   <cve>CVE-2018-8016</cve>
+</suppress>
+</suppressions>
