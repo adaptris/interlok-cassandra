@@ -130,7 +130,7 @@ dependencies {
   implementation ("io.netty:netty-transport-native-epoll:$nettyVersion")
   implementation ("io.netty:netty-codec:$nettyVersion")
 
-  compile ("com.fasterxml.jackson.core:jackson-databind:2.11.1")
+  compile ("com.fasterxml.jackson.core:jackson-databind:2.11.2")
   compile ("com.fasterxml.jackson.core:jackson-core:2.11.1")
   compile ("com.google.guava:guava:29.0-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
