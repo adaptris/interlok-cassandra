@@ -4,12 +4,12 @@ plugins {
   id 'maven'
   id 'maven-publish'
   id  "jacoco"
-  id 'com.github.spotbugs' version '4.2.3'
+  id 'com.github.spotbugs' version '4.5.0'
   id 'org.owasp.dependencycheck' version '5.3.2.1'
 }
 ext {
-  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.10-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.10-SNAPSHOT'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.11-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.11-SNAPSHOT'
   nexusBaseUrl = project.hasProperty('nexusBaseUrl') ? project.getProperty('nexusBaseUrl') : 'https://nexus.adaptris.net/nexus'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
@@ -25,8 +25,8 @@ ext {
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.30'
   log4j2Version = '2.13.2'
-  cassandraVersion = '3.9.0'
-  nettyVersion='4.1.50.Final'
+  cassandraVersion = '3.10.1'
+  nettyVersion='4.1.51.Final'
 }
 
 ext.hasGraphViz = { ->
@@ -130,8 +130,8 @@ dependencies {
   implementation ("io.netty:netty-transport-native-epoll:$nettyVersion")
   implementation ("io.netty:netty-codec:$nettyVersion")
 
-  compile ("com.fasterxml.jackson.core:jackson-databind:2.11.0")
-  compile ("com.fasterxml.jackson.core:jackson-core:2.11.0")
+  compile ("com.fasterxml.jackson.core:jackson-databind:2.11.2")
+  compile ("com.fasterxml.jackson.core:jackson-core:2.11.2")
   compile ("com.google.guava:guava:29.0-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.1.4")
@@ -144,7 +144,8 @@ dependencies {
     changing= true
     exclude group: "org.apache.logging.log4j"
   }
-  testCompile ("org.mockito:mockito-all:1.10.19")
+  testCompile ("org.mockito:mockito-core:3.5.9")
+  testCompile ("org.mockito:mockito-inline:3.5.9")
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
