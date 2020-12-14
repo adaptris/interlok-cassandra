@@ -293,12 +293,13 @@ publishing {
       artifact sourcesJar { classifier "sources" }
 
       pom.withXml {
+        asNode().appendNode("name", componentName)
         asNode().appendNode("description", "Services to interace with Cassandra")
-		asNode().appendNode("name", componentName)
         def properties = asNode().appendNode("properties")
         properties.appendNode("target", "3.8.0+")
         properties.appendNode("tags", "csv,database,cassandra")
         properties.appendNode("license", "false")
+	properties.appendNode("repository", "https://github.com/adaptris/interlok-cassandra")
       }
     }
   }
