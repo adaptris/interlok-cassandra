@@ -26,7 +26,7 @@ ext {
   slf4jVersion = '1.7.30'
   log4j2Version = '2.13.2'
   cassandraVersion = '3.10.1'
-  nettyVersion='4.1.56.Final'
+  nettyVersion='4.1.58.Final'
 }
 
 ext.hasGraphViz = { ->
