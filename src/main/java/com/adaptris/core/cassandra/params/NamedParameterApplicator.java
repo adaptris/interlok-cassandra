@@ -36,6 +36,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * </p>
  * 
  * @author amcgrath
+ * @config cassandra-named-parameter-applicator
  * 
  */
 @XStreamAlias("cassandra-named-parameter-applicator")
