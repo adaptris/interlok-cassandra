@@ -3,6 +3,7 @@ package com.adaptris.core.cassandra;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+
 import com.adaptris.jdbc.JdbcResultRow;
 import com.adaptris.jdbc.JdbcResultSet;
 import com.adaptris.jdbc.ParameterValueType;
@@ -29,11 +30,11 @@ public class JdbcCassandraResultSet implements JdbcResultSet {
 
   @Override
   public Iterable<JdbcResultRow> getRows() {
-    return new Iterable<JdbcResultRow>() {
+    return new Iterable<>() {
 
       @Override
       public Iterator<JdbcResultRow> iterator() {
-        return new Iterator<JdbcResultRow>() {
+        return new Iterator<>() {
 
           @Override
           public JdbcResultRow next() {
@@ -42,9 +43,10 @@ public class JdbcCassandraResultSet implements JdbcResultSet {
 
             ColumnDefinitions columnDefinitions = nextRow.getColumnDefinitions();
             List<Definition> asList = columnDefinitions.asList();
-            for(Definition definition : asList)
+            for(Definition definition : asList) {
               result.setFieldValue(definition.getName(), nextRow.getObject(definition.getName()),
                   (ParameterValueType) null);
+            }
 
             return result;
           }

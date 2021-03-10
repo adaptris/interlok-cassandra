@@ -1,5 +1,6 @@
 package com.adaptris.core.cassandra.params;
 
+import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ServiceException;
 import com.adaptris.core.services.jdbc.StatementParameterCollection;
@@ -18,10 +19,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  *
  */
 @XStreamAlias("cassandra-null-parameter-applicator")
+@AdapterComponent
 public class NullParameterApplicator extends AbstractCassandraParameterApplicator {
-
-  public NullParameterApplicator() {
-  }
 
   @Override
   public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
