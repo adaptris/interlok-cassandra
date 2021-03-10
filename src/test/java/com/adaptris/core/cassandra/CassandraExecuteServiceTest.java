@@ -2,9 +2,10 @@ package com.adaptris.core.cassandra;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
 import com.adaptris.core.cassandra.params.CachedStatementPrimer;
@@ -24,9 +25,6 @@ public class CassandraExecuteServiceTest extends CassandraCase {
   
   private AdaptrisMessage message;
 
-  public CassandraExecuteServiceTest() {
-  }
-  
   @Before
   public void setUp() throws Exception {
     connection = new CassandraConnection();
@@ -49,10 +47,6 @@ public class CassandraExecuteServiceTest extends CassandraCase {
     message = DefaultMessageFactory.getDefaultInstance().newMessage();
   }
   
-  @After
-  public void tearDown() throws Exception {
-  }
-
   @Test
   public void testSimpleInsert() throws Exception {
     if(testsEnabled) {
@@ -177,11 +171,6 @@ public class CassandraExecuteServiceTest extends CassandraCase {
     service.setStatementPrimer(statementPrimer);
     service.getParameterList().add(parameter);
     return service;
-  }
-
-  @Override
-  public boolean isAnnotatedForJunit4() {
-    return true;
   }
 
 }

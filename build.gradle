@@ -310,7 +310,7 @@ publishing {
         properties.appendNode("target", "3.8.0+")
         properties.appendNode("tags", "csv,database,cassandra")
         properties.appendNode("license", "false")
-	      properties.appendNode("repository", "https://github.com/adaptris/interlok-cassandra")
+	    properties.appendNode("repository", "https://github.com/adaptris/interlok-cassandra")
       }
     }
   }

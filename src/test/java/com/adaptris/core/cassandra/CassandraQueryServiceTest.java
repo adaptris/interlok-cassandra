@@ -1,9 +1,11 @@
 package com.adaptris.core.cassandra;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
 import com.adaptris.core.cassandra.params.CachedStatementPrimer;
@@ -22,10 +24,6 @@ public class CassandraQueryServiceTest extends CassandraCase {
   
   private AdaptrisMessage message;
   
-  public CassandraQueryServiceTest() {
-    super();
-  }
-
   @Before
   public void setUp() throws Exception {
     connection = new CassandraConnection();
@@ -59,8 +57,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
       shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
-    } else
+    } else {
       System.out.println("Skipping testSimpleValueQuery()");
+    }
   }
 
   @Test
@@ -76,8 +75,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
       assertEquals("10700000", message.getMetadataValue("Cassandra_amount"));
       assertEquals("Rafael Benitez", message.getMetadataValue("Cassandra_manager"));
       assertEquals("Xabi Alonso", message.getMetadataValue("Cassandra_player"));
-    } else
+    } else {
       System.out.println("Skipping testSimpleRowQuery()");
+    }
   }
   
   @Test
@@ -100,8 +100,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
       shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club")); 
-    } else
+    } else {
       System.out.println("Skipping testSimpleValueQueryWithSimpleParameter()");
+    }
   }
   
   @Test
@@ -125,8 +126,9 @@ public class CassandraQueryServiceTest extends CassandraCase {
       shutdown(connection, service);
       
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club")); 
-    } else
+    } else {
       System.out.println("Skipping testSimpleValueQueryWithNamedParameter()");
+    }
   }
 
   @Override
@@ -136,11 +138,6 @@ public class CassandraQueryServiceTest extends CassandraCase {
     statementPrimer.setCacheLimit(25);
     service.setStatementPrimer(statementPrimer);
     return service;
-  }
-
-  @Override
-  public boolean isAnnotatedForJunit4() {
-    return true;
   }
 
 }
