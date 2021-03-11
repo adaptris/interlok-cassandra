@@ -18,7 +18,7 @@ public class ResultBuilder {
   }
 
   public ResultBuilder setResultSet(ResultSet resultSet) {
-    result.addResultSet(this.mapResultSet(resultSet));
+    result.addResultSet(mapResultSet(resultSet));
     return this;
   }
 

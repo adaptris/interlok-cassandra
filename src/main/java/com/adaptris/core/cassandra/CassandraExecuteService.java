@@ -1,17 +1,11 @@
 package com.adaptris.core.cassandra;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import com.adaptris.annotation.AutoPopulated;
-import com.adaptris.core.AdaptrisConnection;
+import com.adaptris.annotation.AdapterComponent;
+import com.adaptris.annotation.ComponentProfile;
+import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ConnectedService;
-import com.adaptris.core.CoreException;
-import com.adaptris.core.ServiceException;
-import com.adaptris.core.ServiceImp;
 import com.adaptris.core.cassandra.params.CachedStatementPrimer;
-import com.adaptris.core.cassandra.params.CassandraParameterApplicator;
 import com.adaptris.core.cassandra.params.NullParameterApplicator;
 import com.adaptris.core.cassandra.params.NullStatementPrimer;
 import com.adaptris.core.cassandra.params.StatementPrimer;
@@ -49,101 +43,27 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * <p>
  * Finally there are expected to be no results for any CQL statement executed, therefore any results are ignored.
  * </p>
- * 
+ *
  * @author amcgrath
  * @config cassandra-query-service
- * @license ENTERPRISE
  */
 @XStreamAlias("cassandra-execute-service")
-public class CassandraExecuteService extends ServiceImp implements ConnectedService {
-  
-  @NotNull
-  @Valid
-  private AdaptrisConnection connection;
-  @NotNull
-  @Valid
-  private DataInputParameter<String> statement;
-  @NotNull
-  @Valid
-  @AutoPopulated
-  private CassandraParameterApplicator parameterApplicator;
-  @NotNull
-  @Valid
-  @AutoPopulated
-  private StatementParameterList parameterList;
-  @NotNull
-  @Valid
-  @AutoPopulated
-  private StatementPrimer statementPrimer;
-  
+@AdapterComponent
+@ComponentProfile(summary = "Execute CQL to insert and delete rows in the databases tables", recommended = {
+    CassandraConnection.class }, tag = "cassandra")
+@DisplayOrder(order = { "connection", "statement" })
+public class CassandraExecuteService extends CassandraServiceImp implements ConnectedService {
+
   public CassandraExecuteService() {
-    this.setParameterApplicator(new NullParameterApplicator());
-    this.setParameterList(new StatementParameterList());
-    this.setStatementPrimer(new NullStatementPrimer());
+    setParameterApplicator(new NullParameterApplicator());
+    setParameterList(new StatementParameterList());
+    setStatementPrimer(new NullStatementPrimer());
   }
 
   @Override
-  public void doService(AdaptrisMessage message) throws ServiceException {
-    try {
-      Session session = (this.getConnection().retrieveConnection(CassandraConnection.class)).getSession();
-      BoundStatement boundStatement = this.getParameterApplicator().applyParameters(session, message, this.getParameterList(), this.getStatement().extract(message));
-      session.execute(boundStatement);
-    } catch(Exception ex) {
-      throw new ServiceException(ex);
-    }
-  }
-
-  @Override
-  public void prepare() throws CoreException {
-  }
-
-  @Override
-  protected void initService() throws CoreException {
-    this.getParameterApplicator().setStatementPrimer(this.getStatementPrimer());
-  }
-
-  @Override
-  protected void closeService() {
-  }
-
-  public AdaptrisConnection getConnection() {
-    return connection;
-  }
-
-  public void setConnection(AdaptrisConnection connection) {
-    this.connection = connection;
-  }
-
-  public CassandraParameterApplicator getParameterApplicator() {
-    return parameterApplicator;
-  }
-
-  public void setParameterApplicator(CassandraParameterApplicator parameterApplicator) {
-    this.parameterApplicator = parameterApplicator;
-  }
-
-  public StatementParameterList getParameterList() {
-    return parameterList;
-  }
-
-  public void setParameterList(StatementParameterList parameterList) {
-    this.parameterList = parameterList;
-  }
-
-  public DataInputParameter<String> getStatement() {
-    return statement;
-  }
-
-  public void setStatement(DataInputParameter<String> statement) {
-    this.statement = statement;
-  }
-
-  public StatementPrimer getStatementPrimer() {
-    return statementPrimer;
-  }
-
-  public void setStatementPrimer(StatementPrimer statementPrimer) {
-    this.statementPrimer = statementPrimer;
+  public void doCassandraService(Session session, AdaptrisMessage message) throws Exception {
+    BoundStatement boundStatement = getParameterApplicator().applyParameters(session, message, getParameterList(), getStatement().extract(message));
+    session.execute(boundStatement);
   }
 
 }

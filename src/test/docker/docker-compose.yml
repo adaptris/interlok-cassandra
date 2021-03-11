@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+
+  cassandra:
+    # image: cassandra:3.11
+    build: .
+    container_name: junit_cassandra
+    ports:
+      - 9042:9042
+    environment:
+      - CASSANDRA_KEYSPACE=INTERLOK_KS
+

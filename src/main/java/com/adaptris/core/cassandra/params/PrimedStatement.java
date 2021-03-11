@@ -10,25 +10,25 @@ public class PrimedStatement {
   
   private PreparedStatement preparedStatement;
   
-  public PrimedStatement() {
-  }
-  
   public PrimedStatement(String stringStatement, PreparedStatement preparedStatement) {
-    this.setStringStatement(stringStatement);
-    this.setPreparedStatement(preparedStatement);
+    setStringStatement(stringStatement);
+    setPreparedStatement(preparedStatement);
   }
 
+  @Override
   public boolean equals(Object object) {
     if(object instanceof PrimedStatement) {
       PrimedStatement other = (PrimedStatement) object;
-      if(other.getStringStatement() != null)
-        return other.getStringStatement().equals(this.getStringStatement());
+      if(other.getStringStatement() != null) {
+        return other.getStringStatement().equals(getStringStatement());
+      }
     }
     return false;
   }
   
+  @Override
   public int hashCode() {
-    return new HashCodeBuilder(23, 49).append(this.getStringStatement()).hashCode();
+    return new HashCodeBuilder(23, 49).append(getStringStatement()).hashCode();
   }
   
   public String getStringStatement() {

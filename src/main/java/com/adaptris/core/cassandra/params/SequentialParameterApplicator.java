@@ -1,5 +1,7 @@
 package com.adaptris.core.cassandra.params;
 
+import com.adaptris.annotation.AdapterComponent;
+import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ServiceException;
 import com.adaptris.core.services.jdbc.JdbcStatementParameter;
@@ -22,10 +24,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  *
  */
 @XStreamAlias("cassandra-sequential-parameter-applicator")
+@AdapterComponent
+@ComponentProfile(summary = "Helps to use sequencial parameters in CQL statements", tag = "cassandra")
 public class SequentialParameterApplicator extends AbstractCassandraParameterApplicator {
-
-  public SequentialParameterApplicator() {
-  }
 
   @Override
   public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
