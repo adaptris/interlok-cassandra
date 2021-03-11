@@ -79,14 +79,14 @@ public abstract class CassandraCase extends ExampleServiceCase {
   }
 
   protected void shutdown(Service... services) {
-    for(Service service : services) {
+    for (Service service : services) {
       LifecycleHelper.stop(service);
       LifecycleHelper.close(service);
     }
   }
 
   protected void startup(Service... services) throws CoreException {
-    for(Service service : services) {
+    for (Service service : services) {
       LifecycleHelper.init(service);
       LifecycleHelper.start(service);
     }

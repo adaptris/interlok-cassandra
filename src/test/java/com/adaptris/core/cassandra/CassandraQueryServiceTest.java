@@ -17,13 +17,13 @@ import com.adaptris.core.services.jdbc.StatementParameter;
 import com.adaptris.core.services.jdbc.StatementParameterImpl.QueryType;
 
 public class CassandraQueryServiceTest extends CassandraCase {
-  
+
   private CassandraConnection connection;
-  
+
   private CassandraQueryService service;
-  
+
   private AdaptrisMessage message;
-  
+
   @Before
   public void setUp() throws Exception {
     connection = new CassandraConnection();
@@ -32,30 +32,30 @@ public class CassandraQueryServiceTest extends CassandraCase {
     connection.setKeyspace(PROPERTIES.getProperty(TESTS_KEYSPACE_KEY, "INTERLOK_KS"));
     connection.setUsername(TEST_USERNAME);
     connection.setPassword(TEST_PASSWORD);
-    
+
     service = new CassandraQueryService();
     service.setConnection(connection);
-    
+
     FirstRowMetadataTranslator translator = new FirstRowMetadataTranslator();
     translator.setMetadataKeyPrefix("Cassandra");
     service.setResultSetTranslator(translator);
-    
+
     message = DefaultMessageFactory.getDefaultInstance().newMessage();
   }
-  
+
   @After
   public void tearDown() throws Exception {
   }
-  
+
   @Test
   public void testSimpleValueQuery() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = 'Xabi Alonso'"));
-            
-      startup(connection, service);
+
+      startup(service);
       service.doService(message);
-      shutdown(connection, service);
-      
+      shutdown(service);
+
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
     } else {
       System.out.println("Skipping testSimpleValueQuery()");
@@ -66,11 +66,11 @@ public class CassandraQueryServiceTest extends CassandraCase {
   public void testSimpleRowQuery() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select * from liverpool_transfers where player = 'Xabi Alonso'"));
-      
-      startup(connection, service);
+
+      startup(service);
       service.doService(message);
-      shutdown(connection, service);
-      
+      shutdown(service);
+
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
       assertEquals("10700000", message.getMetadataValue("Cassandra_amount"));
       assertEquals("Rafael Benitez", message.getMetadataValue("Cassandra_manager"));
@@ -79,53 +79,53 @@ public class CassandraQueryServiceTest extends CassandraCase {
       System.out.println("Skipping testSimpleRowQuery()");
     }
   }
-  
+
   @Test
   public void testSimpleValueQueryWithSimpleParameter() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = ?"));
-      
+
       StatementParameter parameter = new StatementParameter();
       parameter.setQueryString("playername");
       parameter.setQueryClass("java.lang.String");
       parameter.setQueryType(QueryType.metadata);
-      
+
       message.addMessageHeader("playername", "Xabi Alonso");
-      
+
       service.getParameterList().add(parameter);
       service.setParameterApplicator(new SequentialParameterApplicator());
-      
-      startup(connection, service);
+
+      startup(service);
       service.doService(message);
-      shutdown(connection, service);
-      
-      assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club")); 
+      shutdown(service);
+
+      assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
     } else {
       System.out.println("Skipping testSimpleValueQueryWithSimpleParameter()");
     }
   }
-  
+
   @Test
   public void testSimpleValueQueryWithNamedParameter() throws Exception {
     if(testsEnabled) {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = #playername"));
-      
+
       StatementParameter parameter = new StatementParameter();
       parameter.setQueryString("playername");
       parameter.setQueryClass("java.lang.String");
       parameter.setQueryType(QueryType.metadata);
       parameter.setName("playername");
-      
+
       message.addMessageHeader("playername", "Xabi Alonso");
-      
+
       service.getParameterList().add(parameter);
       service.setParameterApplicator(new NamedParameterApplicator());
-      
-      startup(connection, service);
+
+      startup(service);
       service.doService(message);
-      shutdown(connection, service);
-      
-      assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club")); 
+      shutdown(service);
+
+      assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
     } else {
       System.out.println("Skipping testSimpleValueQueryWithNamedParameter()");
     }
@@ -133,7 +133,7 @@ public class CassandraQueryServiceTest extends CassandraCase {
 
   @Override
   protected Object retrieveObjectForSampleConfig() {
-    service.setStatement(new ConstantDataInputParameter("SELECT * FROM myTable")); 
+    service.setStatement(new ConstantDataInputParameter("SELECT * FROM myTable"));
     CachedStatementPrimer statementPrimer = new CachedStatementPrimer();
     statementPrimer.setCacheLimit(25);
     service.setStatementPrimer(statementPrimer);
