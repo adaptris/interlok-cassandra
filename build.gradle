@@ -1,4 +1,6 @@
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.apache.tools.ant.filters.*
+
 plugins {
   id 'java'
   id 'maven'
@@ -6,6 +8,8 @@ plugins {
   id  "jacoco"
   id 'com.github.spotbugs' version '4.7.0'
   id 'org.owasp.dependencycheck' version '6.1.1'
+  id "io.freefair.lombok" version "5.3.0"
+
 }
 ext {
   interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '4.0-SNAPSHOT'
@@ -29,6 +33,20 @@ ext {
   mockitoVersion = '3.8.0'
   cassandraVersion = '3.10.1'
   nettyVersion='4.1.59.Final'
+  delombokTargetDir = new File("${project.projectDir}/src/main/generated")
+
+}
+
+ext.testResourcesDir = { ->
+  return "${project.projectDir}/src/test/resources".replaceAll("\\\\", "/")
+}
+
+
+ext.hostname = { ->
+  if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    return System.getenv("COMPUTERNAME")
+  }
+  return System.getenv("HOSTNAME")
 }
 
 ext.hasGraphViz = { ->
@@ -41,6 +59,16 @@ ext.hasGraphViz = { ->
   // }
   return false
 }
+
+
+ext.propertyTemplate = { dir, filename ->
+  def file = new File(dir, filename + "." + hostname())
+  if (file.exists()) {
+    return file.getName()
+  }
+  return filename
+}
+
 
 ext.gitBranchNameOrTimestamp = { branchName ->
   if (branchName.equals("HEAD") || branchName.equals("develop") || branchName.startsWith("release")) {
@@ -69,16 +97,12 @@ if (JavaVersion.current().isJava8Compatible()) {
   }
 }
 
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: "jacoco"
-
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 group   = 'com.adaptris'
 version = releaseVersion
 def versionDir = "$buildDir/version"
+generateLombokConfig.enabled = false
 
 repositories {
   mavenCentral()
@@ -232,11 +256,6 @@ jacocoTestReport {
 }
 
 
-task deleteDerbyLog(type: Delete) {
-  delete 'derby.log'
-}
-
-
 task javadocJar(type: Jar, dependsOn: javadoc) {
   classifier = 'javadoc'
   from javadoc.destinationDir
@@ -259,7 +278,7 @@ task umlJavadoc(type: Javadoc) {
   onlyIf {
     hasGraphViz()
   }
-  source = sourceSets.main.allJava
+  source = sourceSets.main.extensions.delombokTask
   classpath = project.sourceSets.main.compileClasspath
   configure(options) {
     options.linksOffline(interlokJavadocs, offlineJavadocPackageDir.getCanonicalPath() + "/interlok-core-$interlokCoreVersion-javadoc.jar")
@@ -353,10 +372,43 @@ dependencyCheck  {
   }
 }
 
+
+task buildUnitTestProperties(type: Copy) {
+  def propertyFile = propertyTemplate(testResourcesDir(), "unit-tests.properties.template")
+  delete file(testResourcesDir() + "/unit-tests.properties")
+  from file(testResourcesDir() + "/" + propertyFile)
+  into (testResourcesDir())
+  rename { String fileName ->
+    fileName.replace(propertyFile, 'unit-tests.properties')
+  }
+  filter(ReplaceTokens, tokens: [JAVA_HOME: System.getProperty("java.home").replaceAll("\\\\", "/")])
+  filter(ReplaceTokens, tokens: [BASE_DIR: project.projectDir.getCanonicalPath().replaceAll("\\\\", "/")])
+  filter(ReplaceTokens, tokens: [BUILD_DIR: project.buildDir.getCanonicalPath().replaceAll("\\\\", "/")])
+}
+
+task deleteGeneratedFiles(type: Delete) {
+  delete file("src/test/resources/unit-tests.properties"), delombokTargetDir, "derby.log"
+}
+
+delombok {
+  target = delombokTargetDir
+}
+
+task lgtmCompile(type: JavaCompile, dependsOn: delombok) {
+  group 'Build'
+  description 'Compile for lgtm'
+
+  source = sourceSets.main.extensions.delombokTask
+  destinationDir = sourceSets.main.java.outputDir
+  classpath = project.sourceSets.main.compileClasspath
+}
+
+
 // disable spotbugsTests which checks our test code..
 spotbugsTest.enabled = false
 
 
+processTestResources.dependsOn buildUnitTestProperties
+clean.dependsOn deleteGeneratedFiles
 javadoc.dependsOn offlinePackageList, umlJavadoc
-clean.dependsOn deleteDerbyLog
 check.dependsOn jacocoTestReport
