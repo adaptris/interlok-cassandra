@@ -80,7 +80,7 @@ public class CassandraConnection extends AdaptrisConnectionImp {
 
   @Override
   protected void closeConnection() {
-    cluster = null;
+    setCluster(null);
   }
 
   @Override
@@ -90,10 +90,10 @@ public class CassandraConnection extends AdaptrisConnectionImp {
   @Override
   protected void startConnection() throws CoreException {
     try {
-      cluster = Cluster.builder()
+      setCluster(Cluster.builder()
           .addContactPoint(getConnectionUrl())
           .withCredentials(getUsername(), Password.decode(getPassword()))
-          .build();
+          .build());
       Metadata metadata = cluster.getMetadata();
       log.debug("Connected to cluster: {}", metadata.getClusterName());
       for (Host host : metadata.getAllHosts()) {
