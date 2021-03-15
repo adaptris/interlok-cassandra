@@ -7,5 +7,7 @@
    ]]></notes>
    <packageUrl regex="true">^pkg:maven/com\.datastax\.cassandra/cassandra.*$</packageUrl>
    <cve>CVE-2018-8016</cve>
+   <cve>CVE-2020-13946</cve>
+   <cve>CVE-2020-17516</cve>
 </suppress>
 </suppressions>
