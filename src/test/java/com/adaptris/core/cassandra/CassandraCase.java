@@ -1,15 +1,15 @@
 package com.adaptris.core.cassandra;
 
-import com.adaptris.core.AdaptrisConnection;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.Service;
-import com.adaptris.core.ServiceCase;
 import com.adaptris.core.util.LifecycleHelper;
+import com.adaptris.interlok.junit.scaffolding.services.ExampleServiceCase;
+import com.adaptris.interlok.util.Closer;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
-public abstract class CassandraCase extends ServiceCase {
-  
+public abstract class CassandraCase extends ExampleServiceCase {
+
   /**
    * Key in unit-test.properties that defines where example goes unless overriden {@link #setBaseDir(String)}.
    */
@@ -31,18 +31,16 @@ public abstract class CassandraCase extends ServiceCase {
   protected static final String TEST_PASSWORD = "bacon";
 
   protected boolean testsEnabled;
-  
+
   public CassandraCase() {
-    super();
-    
     if (PROPERTIES.getProperty(BASE_DIR_KEY) != null) {
       setBaseDir(PROPERTIES.getProperty(BASE_DIR_KEY));
-      testsEnabled = PROPERTIES.getProperty(TESTS_ENABLED_KEY, "false").equalsIgnoreCase("true");
+      testsEnabled = testEnabled();
     }
   }
-  
+
   static {
-    if(PROPERTIES.getProperty(TESTS_ENABLED_KEY, "false").equalsIgnoreCase("true")) {
+    if(testEnabled()) {
       Cluster cluster = null;
       Session session = null;
       try {
@@ -50,9 +48,9 @@ public abstract class CassandraCase extends ServiceCase {
             .addContactPoint(PROPERTIES.getProperty(TESTS_HOST_KEY))
             .withCredentials(TEST_USERNAME, TEST_PASSWORD)
             .build();
-        
+
         session = cluster.connect(PROPERTIES.getProperty(TESTS_KEYSPACE_KEY));
-        
+
         try {
           session.execute("drop table " + PROPERTIES.getProperty(TESTS_KEYSPACE_KEY) + ".liverpool_transfers");
         } catch (Exception ex) {
@@ -64,36 +62,33 @@ public abstract class CassandraCase extends ServiceCase {
             + "club text,\n"
             + "manager text,\n"
             + "PRIMARY KEY(player));");
-        
+
         session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Djibril Cisse', 'AJ Auxerre',14500000,'Gerard Houllier')");
         session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Emile Heskey', 'Leicester City',11000000,'Gerard Houllier')");
         session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Xabi Alonso', 'Real Sociedad',10700000,'Rafael Benitez')");
-        
+
       } finally {
-        if(session != null)
-          session.close();
-        cluster.close();
+        Closer.closeQuietly(session);
+        Closer.closeQuietly(cluster);
       }
     }
   }
-  
-  protected void shutdown(AdaptrisConnection connection, Service... services) {
-    LifecycleHelper.stop(connection);
-    LifecycleHelper.close(connection);
-    
-    for(Service service : services) {
+
+  private static boolean testEnabled() {
+    return PROPERTIES.getProperty(TESTS_ENABLED_KEY, "false").equalsIgnoreCase("true");
+  }
+
+  protected void shutdown(Service... services) {
+    for (Service service : services) {
       LifecycleHelper.stop(service);
       LifecycleHelper.close(service);
     }
   }
 
-  protected void startup(AdaptrisConnection connection, Service... services) throws CoreException {
-    LifecycleHelper.init(connection);
-    LifecycleHelper.start(connection);
-    
-    for(Service service : services) {
-      LifecycleHelper.stop(service);
-      LifecycleHelper.close(service);
+  protected void startup(Service... services) throws CoreException {
+    for (Service service : services) {
+      LifecycleHelper.init(service);
+      LifecycleHelper.start(service);
     }
   }
 

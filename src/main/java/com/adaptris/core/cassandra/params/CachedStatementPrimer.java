@@ -3,13 +3,15 @@ package com.adaptris.core.cassandra.params;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.adaptris.annotation.AdapterComponent;
+import com.adaptris.annotation.ComponentProfile;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * <p>
- * This {@link StatementPrimer} will cache a number of CQL statements, therefore not needing to prepare a statement that has 
+ * This {@link StatementPrimer} will cache a number of CQL statements, therefore not needing to prepare a statement that has
  * already been prepared.
  * </p>
  * <p>
@@ -25,36 +27,40 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * }
  * </pre>
  * </p>
- * 
+ *
  * @author Aaron
  * @config cached-statement-primer
- * 
+ *
  */
 @XStreamAlias("cached-statement-primer")
+@AdapterComponent
+@ComponentProfile(summary = "Cache a number of CQL statements", tag = "cassandra,cache")
 public class CachedStatementPrimer implements StatementPrimer {
 
   private transient List<PrimedStatement> statements;
-  
+
   private int cacheLimit;
-  
+
   public CachedStatementPrimer() {
-    this.setStatements(new ArrayList<PrimedStatement>());
-    this.setCacheLimit(50);
+    setStatements(new ArrayList<PrimedStatement>());
+    setCacheLimit(50);
   }
-  
+
   @Override
   public PreparedStatement prepareStatement(Session session, String statement) throws Exception {
-    int statementIndex = this.getStatements().indexOf(new PrimedStatement(statement, null));
-    if(statementIndex > -1)
-      return this.getStatements().get(statementIndex).getPreparedStatement();
+    int statementIndex = getStatements().indexOf(new PrimedStatement(statement, null));
+    if(statementIndex > -1) {
+      return getStatements().get(statementIndex).getPreparedStatement();
+    }
 
     PreparedStatement preparedStatement = session.prepare(statement);
-    
+
     PrimedStatement primedStatement = new PrimedStatement(statement, preparedStatement);
-    if(statements.size() >= this.getCacheLimit())
-      this.getStatements().remove(0);
-    this.getStatements().add(primedStatement);
-    
+    if(statements.size() >= getCacheLimit()) {
+      getStatements().remove(0);
+    }
+    getStatements().add(primedStatement);
+
     return preparedStatement;
   }
 
@@ -70,6 +76,11 @@ public class CachedStatementPrimer implements StatementPrimer {
     return cacheLimit;
   }
 
+  /**
+   * Set the max number of statements to keep in the cache
+   *
+   * @param cacheLimit
+   */
   public void setCacheLimit(int cacheLimit) {
     this.cacheLimit = cacheLimit;
   }
