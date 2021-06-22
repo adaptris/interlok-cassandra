@@ -4,7 +4,7 @@ extraction:
       java_version: 11
       gradle:
         version: 6.8.1
-     build_command:
+      build_command:
         - ./gradlew --no-daemon -S lgtmCompile
 
 path_classifiers:
