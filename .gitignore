@@ -28,5 +28,5 @@ target
 bin
 gradle.properties
 .gradle
-unit-tests.properties.template
+unit-tests.properties
 **/src/main/generated
