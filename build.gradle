@@ -29,9 +29,9 @@ ext {
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.32'
   log4j2Version = '2.13.2'
-  mockitoVersion = '3.11.2'
+  mockitoVersion = '3.12.4'
   cassandraVersion = '3.11.0'
-  nettyVersion='4.1.66.Final'
+  nettyVersion='4.1.67.Final'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
 
 }
