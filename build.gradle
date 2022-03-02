@@ -5,14 +5,14 @@ plugins {
   id 'java-library'
   id 'maven-publish'
   id  "jacoco"
-  id 'com.github.spotbugs' version '4.7.9'
-  id 'org.owasp.dependencycheck' version '6.5.0.1'
-  id "io.freefair.lombok" version "6.2.0"
+  id 'com.github.spotbugs' version '5.0.5'
+  id 'org.owasp.dependencycheck' version '6.5.3'
+  id "io.freefair.lombok" version "6.3.0"
 
 }
 ext {
-  interlokCoreVersion = project.findProperty('interlokCoreVersion') ?: '4.3-SNAPSHOT'
-  releaseVersion = project.findProperty('releaseVersion') ?: '4.3-SNAPSHOT'
+  interlokCoreVersion = project.findProperty('interlokCoreVersion') ?: '4.4-SNAPSHOT'
+  releaseVersion = project.findProperty('releaseVersion') ?: '4.4-SNAPSHOT'
   nexusBaseUrl = project.findProperty('nexusBaseUrl') ?: 'https://nexus.adaptris.net/nexus'
   mavenPublishUrl = project.findProperty('mavenPublishUrl') ?: nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
@@ -27,11 +27,11 @@ ext {
   componentDesc="Services to interace with Datastax Cassandra"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
-  slf4jVersion = '1.7.32'
+  slf4jVersion = '1.7.35'
   log4j2Version = '2.13.2'
-  mockitoVersion = '4.0.0'
+  mockitoVersion = '4.3.1'
   cassandraVersion = '3.11.0'
-  nettyVersion='4.1.70.Final'
+  nettyVersion='4.1.73.Final'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
 
 }
@@ -173,8 +173,8 @@ dependencies {
   implementation ("io.netty:netty-transport-native-epoll:$nettyVersion")
   implementation ("io.netty:netty-codec:$nettyVersion")
 
-  api ("com.fasterxml.jackson.core:jackson-databind:2.13.0")
-  api ("com.fasterxml.jackson.core:jackson-core:2.13.0")
+  api ("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+  api ("com.fasterxml.jackson.core:jackson-core:2.13.1")
   api ("com.google.guava:guava:31.0.1-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.1.4")
@@ -334,6 +334,7 @@ publishing {
       pom.withXml {
         asNode().appendNode("name", componentName)
         asNode().appendNode("description", componentDesc)
+		asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/#/")
         def properties = asNode().appendNode("properties")
         properties.appendNode("target", "3.8.0+")
         properties.appendNode("tags", "csv,database,cassandra")
@@ -356,16 +357,13 @@ publishing {
 spotbugsMain {
   effort = "max"
   reportLevel = "high"
-  // showProgress = "true"
-  effort = "max"
-  // Ignore failures?
-  // ignoreFailures = false
   reports {
     xml {
-      enabled = false
+      required.set(false)
     }
     html {
-      enabled = true
+      required.set(true)
+      stylesheet = 'default.xsl'
     }
   }
 }
