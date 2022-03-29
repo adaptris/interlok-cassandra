@@ -31,7 +31,8 @@ ext {
   log4j2Version = '2.13.2'
   mockitoVersion = '4.4.0'
   cassandraVersion = '3.11.1'
-  nettyVersion='4.1.75.Final'
+  nettyVersion = '4.1.75.Final'
+  jacksonVersion = '2.13.2.20220324'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
 
 }
@@ -173,8 +174,10 @@ dependencies {
   implementation ("io.netty:netty-transport-native-epoll:$nettyVersion")
   implementation ("io.netty:netty-codec:$nettyVersion")
 
-  api ("com.fasterxml.jackson.core:jackson-databind:2.13.2")
-  api ("com.fasterxml.jackson.core:jackson-core:2.13.2")
+  // Dependency to platform/BOM
+  implementation (platform("com.fasterxml.jackson:jackson-bom:$jacksonVersion"))
+  api ("com.fasterxml.jackson.core:jackson-databind")
+  api ("com.fasterxml.jackson.core:jackson-core")
   api ("com.google.guava:guava:31.1-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:1.1.4")
