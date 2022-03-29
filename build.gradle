@@ -32,7 +32,7 @@ ext {
   mockitoVersion = '4.4.0'
   cassandraVersion = '3.11.1'
   nettyVersion = '4.1.75.Final'
-  jacksonVersion = '2.13.2.20220324'
+  jacksonVersion = '2.13.2.20220328'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
 
 }
