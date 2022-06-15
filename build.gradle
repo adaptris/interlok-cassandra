@@ -31,7 +31,7 @@ ext {
   log4j2Version = '2.13.2'
   mockitoVersion = '4.6.0'
   cassandraVersion = '3.11.1'
-  nettyVersion = '4.1.77.Final'
+  nettyVersion = '4.1.78.Final'
   jacksonVersion = '2.13.3'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
 
