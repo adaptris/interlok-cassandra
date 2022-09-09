@@ -29,7 +29,7 @@ ext {
   organizationUrl = "http://interlok.adaptris.net"
   slf4jVersion = '1.7.36'
   log4j2Version = '2.13.2'
-  mockitoVersion = '4.7.0'
+  mockitoVersion = '4.8.0'
   cassandraVersion = '3.11.1'
   nettyVersion = '4.1.80.Final'
   jacksonVersion = '2.13.4'
