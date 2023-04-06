@@ -379,7 +379,7 @@ dependencyCheck  {
   failBuildOnCVSS = 7.0
   analyzers {
     assemblyEnabled=false
-    knownExploitedURL=project.getProperty('dependencyCheckKnownExploitedURL')
+    knownExploitedURL=project.findProperty('dependencyCheckKnownExploitedURL')
   }
 }
 
