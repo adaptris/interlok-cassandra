@@ -1,10 +1,10 @@
 package com.adaptris.core.cassandra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.DefaultMessageFactory;
@@ -25,7 +25,7 @@ public class CassandraExecuteServiceTest extends CassandraCase {
 
   private AdaptrisMessage message;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     connection = new CassandraConnection();
     connection.setUniqueId("CassandraConnection");
@@ -49,7 +49,7 @@ public class CassandraExecuteServiceTest extends CassandraCase {
 
   @Test
   public void testSimpleInsert() throws Exception {
-    if(testsEnabled) {
+    if (testsEnabled) {
       ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
           "insert into liverpool_transfers(player, amount, club, manager) "
               + "values ('Fred', 10, 'Accrington Stanley', 'Brendan Rogers')");
@@ -71,9 +71,8 @@ public class CassandraExecuteServiceTest extends CassandraCase {
 
   @Test
   public void testSimpleInsertAndDelete() throws Exception {
-    if(testsEnabled) {
-      ConstantDataInputParameter deleteStatement = new ConstantDataInputParameter(
-          "delete from liverpool_transfers where player = 'Fred'");
+    if (testsEnabled) {
+      ConstantDataInputParameter deleteStatement = new ConstantDataInputParameter("delete from liverpool_transfers where player = 'Fred'");
 
       ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
           "insert into liverpool_transfers(player, amount, club, manager) "
@@ -103,10 +102,9 @@ public class CassandraExecuteServiceTest extends CassandraCase {
 
   @Test
   public void testSimpleInsertWithParameters() throws Exception {
-    if(testsEnabled) {
+    if (testsEnabled) {
       ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
-          "insert into liverpool_transfers(player, amount, club, manager) "
-              + "values (?, ?, ?, ?)");
+          "insert into liverpool_transfers(player, amount, club, manager) values (?, ?, ?, ?)");
       message.addMessageHeader("player", "Fred");
       message.addMessageHeader("amount", "10");
       message.addMessageHeader("club", "Accrington Stanley");
@@ -160,8 +158,7 @@ public class CassandraExecuteServiceTest extends CassandraCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
     ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
-        "insert into liverpool_transfers(player, amount, club, manager) "
-            + "values (?, 10, 'Accrington Stanley', 'Brendan Rogers')");
+        "insert into liverpool_transfers(player, amount, club, manager) values (?, 10, 'Accrington Stanley', 'Brendan Rogers')");
     service.setStatement(insertStatement);
     service.setParameterApplicator(new SequentialParameterApplicator());
     StatementParameter parameter = new StatementParameter("Fred", "java.lang.String", QueryType.constant);
