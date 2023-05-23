@@ -30,39 +30,31 @@ public class JdbcCassandraResultSet implements JdbcResultSet {
 
   @Override
   public Iterable<JdbcResultRow> getRows() {
-    return new Iterable<>() {
+    return () -> new Iterator<>() {
 
       @Override
-      public Iterator<JdbcResultRow> iterator() {
-        return new Iterator<>() {
+      public JdbcResultRow next() {
+        Row nextRow = iterator.next();
+        JdbcResultRow result = new JdbcResultRow();
 
-          @Override
-          public JdbcResultRow next() {
-            Row nextRow = iterator.next();
-            JdbcResultRow result = new JdbcResultRow();
+        ColumnDefinitions columnDefinitions = nextRow.getColumnDefinitions();
+        List<Definition> asList = columnDefinitions.asList();
+        for (Definition definition : asList) {
+          result.setFieldValue(definition.getName(), nextRow.getObject(definition.getName()), (ParameterValueType) null);
+        }
 
-            ColumnDefinitions columnDefinitions = nextRow.getColumnDefinitions();
-            List<Definition> asList = columnDefinitions.asList();
-            for(Definition definition : asList) {
-              result.setFieldValue(definition.getName(), nextRow.getObject(definition.getName()),
-                  (ParameterValueType) null);
-            }
-
-            return result;
-          }
-
-          @Override
-          public boolean hasNext() {
-            return iterator.hasNext();
-          }
-
-          @Override
-          public void remove() {
-            iterator.remove();
-          }
-        };
+        return result;
       }
 
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public void remove() {
+        iterator.remove();
+      }
     };
   }
 
