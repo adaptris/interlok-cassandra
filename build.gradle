@@ -27,20 +27,18 @@ ext {
   componentDesc="Services to interace with Datastax Cassandra"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
-  slf4jVersion = '2.0.3'
+  slf4jVersion = '2.0.7'
   log4j2Version = '2.13.2'
-  mockitoVersion = '4.9.0'
+  mockitoVersion = '5.2.0'
   cassandraVersion = '3.11.3'
   nettyVersion = '4.1.93.Final'
   jacksonVersion = '2.15.2'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
-
 }
 
 ext.testResourcesDir = { ->
   return "${project.projectDir}/src/test/resources".replaceAll("\\\\", "/")
 }
-
 
 ext.hostname = { ->
   if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -60,7 +58,6 @@ ext.hasGraphViz = { ->
   return false
 }
 
-
 ext.propertyTemplate = { dir, filename ->
   def file = new File(dir, filename + "." + hostname())
   if (file.exists()) {
@@ -68,7 +65,6 @@ ext.propertyTemplate = { dir, filename ->
   }
   return filename
 }
-
 
 ext.gitBranchNameOrTimestamp = { branchName ->
   if (branchName.equals("HEAD") || branchName.equals("develop") || branchName.startsWith("release")) {
@@ -123,7 +119,6 @@ repositories {
   maven { url "$nexusBaseUrl/content/groups/public" }
   maven { url "$nexusBaseUrl/content/groups/interlok" }
 }
-
 
 configurations {
   javadoc {}
@@ -205,7 +200,6 @@ jar {
   }
 }
 
-
 sourceSets {
   main {
     output.dir(versionDir, builtBy: 'generateVersion')
@@ -257,10 +251,10 @@ javadoc {
 }
 
 jacocoTestReport {
-    reports {
-        xml.required= true
-        html.required= true
-    }
+  reports {
+    xml.required= true
+    html.required= true
+  }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -378,7 +372,6 @@ dependencyCheck  {
     knownExploitedURL=project.findProperty('dependencyCheckKnownExploitedURL')
   }
 }
-
 
 task buildUnitTestProperties(type: Copy) {
   def propertyFile = propertyTemplate(testResourcesDir(), "unit-tests.properties.template")
