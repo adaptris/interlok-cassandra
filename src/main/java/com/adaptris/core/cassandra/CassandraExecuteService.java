@@ -11,8 +11,8 @@ import com.adaptris.core.cassandra.params.NullStatementPrimer;
 import com.adaptris.core.cassandra.params.StatementPrimer;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.interlok.config.DataInputParameter;
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -24,8 +24,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * Typical uses will be for inserting and deleting rows the databases tables.
  * </p>
  * <p>
- * Specify the source of the CQL statement by configuring a {@link DataInputParameter}. Note that the CQL statement can contain
- * parameters in one of 2 forms; the standard SQL form, using the character "?", or you can use named parameters. <br/>
+ * Specify the source of the CQL statement by configuring a {@link DataInputParameter}. Note that the CQL statement can contain parameters
+ * in one of 2 forms; the standard SQL form, using the character "?", or you can use named parameters. <br/>
  * If you configure any parameters, using the standard SQL form, then you will need to configure a
  * {@link com.adaptris.core.cassandra.params.SequentialParameterApplicator}, or should you wish to name your parameters for ease of
  * configuration, especially when statements contain many parameters, then you will need to configure a
@@ -35,10 +35,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * To configure the values of the parameters configure a {@link StatementParameterList}.
  * </p>
  * <p>
- * You may also configure a {@link StatementPrimer}. Statement Primers are used to prepare a CQL statement before it is executed.
- * <br/>
- * Especially useful may be the {@link CachedStatementPrimer}. The default value for this service is the
- * {@link NullStatementPrimer}.
+ * You may also configure a {@link StatementPrimer}. Statement Primers are used to prepare a CQL statement before it is executed. <br/>
+ * Especially useful may be the {@link CachedStatementPrimer}. The default value for this service is the {@link NullStatementPrimer}.
  * </p>
  * <p>
  * Finally there are expected to be no results for any CQL statement executed, therefore any results are ignored.
@@ -61,8 +59,8 @@ public class CassandraExecuteService extends CassandraServiceImp implements Conn
   }
 
   @Override
-  public void doCassandraService(Session session, AdaptrisMessage message) throws Exception {
-    BoundStatement boundStatement = getParameterApplicator().applyParameters(session, message, getParameterList(), getStatement().extract(message));
+  public void doCassandraService(CqlSession session, AdaptrisMessage message) throws Exception {
+    BoundStatement boundStatement = getParameterApplicator().applyParameters(session, message, getParameterList(),getStatement().extract(message));
     session.execute(boundStatement);
   }
 

@@ -30,7 +30,7 @@ ext {
   slf4jVersion = '2.0.9'
   log4j2Version = '2.13.2'
   mockitoVersion = '5.2.0'
-  cassandraVersion = '3.11.5'
+  cassandraVersion = '4.17.0'
   nettyVersion = '4.1.97.Final'
   jacksonVersion = '2.15.2'
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
@@ -154,18 +154,8 @@ dependencies {
   api ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
   api ("com.adaptris:interlok-common:$interlokCoreVersion") { changing= true}
   implementation ("org.slf4j:slf4j-api:$slf4jVersion")
-  api ("com.datastax.cassandra:cassandra-driver-core:$cassandraVersion") {
-    exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
-    exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
-    exclude group: "com.google.guava", module: "guava"
-    exclude group : "io.netty"
-  }
-  api ("com.datastax.cassandra:cassandra-driver-mapping:$cassandraVersion") {
-    exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
-    exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
-    exclude group: "com.google.guava", module: "guava"
-    exclude group : "io.netty"
-  }
+  api ("com.datastax.oss:java-driver-core:$cassandraVersion")
+  api ("com.datastax.oss:java-driver-mapper-runtime:$cassandraVersion")
 
   // Minimal netty specification
   implementation ("io.netty:netty-handler:$nettyVersion")

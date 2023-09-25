@@ -11,13 +11,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adaptris.interlok.util.Closer;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 
 public class CachedStatementPrimerTest {
 
   @Mock
-  private Session mockSession;
+  private CqlSession mockSession;
 
   @Mock
   private PreparedStatement mockPreparedStatement;
