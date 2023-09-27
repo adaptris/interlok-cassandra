@@ -15,6 +15,7 @@ import com.adaptris.core.CoreException;
 import com.adaptris.interlok.util.Closer;
 import com.adaptris.security.password.Password;
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
 import com.datastax.oss.driver.api.core.metadata.Metadata;
 import com.datastax.oss.driver.api.core.metadata.Node;
 import com.datastax.oss.driver.shaded.guava.common.net.HostAndPort;
@@ -90,11 +91,11 @@ public class CassandraConnection extends AdaptrisConnectionImp {
   @Getter
   @Setter
   private String connectionUrl;
-  
+
   /**
    * <p>
-   * Sets the Cassandra datacenter that is considered "local" by the load balancing policy.
-   * If left empty the default 'datacenter1' will be used.
+   * Sets the Cassandra datacenter that is considered "local" by the load balancing policy. If left empty the default 'datacenter1' will be
+   * used.
    * </p>
    *
    * @param localDatacenter
@@ -154,12 +155,15 @@ public class CassandraConnection extends AdaptrisConnectionImp {
   protected void startConnection() throws CoreException {
     try {
       HostAndPort hostAndPort = hostAndPort();
-      session = CqlSession.builder()
+      CqlSessionBuilder sessionBuilder = CqlSession.builder()
           .addContactPoint(InetSocketAddress.createUnresolved(hostAndPort.getHost(), hostAndPort.getPortOrDefault(DEFAULT_PORT)))
-          .withLocalDatacenter(localDatacenter())
-          .withAuthCredentials(getUsername(), Password.decode(getPassword()))
-          .withKeyspace(getKeyspace())
-          .build();
+          .withLocalDatacenter(localDatacenter());
+
+      if (StringUtils.isNoneEmpty(getUsername(), getPassword())) {
+        sessionBuilder.withAuthCredentials(getUsername(), Password.decode(getPassword()));
+      }
+
+      session = sessionBuilder.withKeyspace(getKeyspace()).build();
       Metadata metadata = session.getMetadata();
       log.debug("Connected to cluster: {}", metadata.getClusterName());
       for (Node node : metadata.getNodes().values()) {
@@ -173,7 +177,7 @@ public class CassandraConnection extends AdaptrisConnectionImp {
   HostAndPort hostAndPort() {
     return HostAndPort.fromString(getConnectionUrl());
   }
-  
+
   private String localDatacenter() {
     return StringUtils.defaultIfBlank(getLocalDatacenter(), DEFAULT_DATACENTER_NAME);
   }
