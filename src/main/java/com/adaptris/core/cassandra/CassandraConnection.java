@@ -14,6 +14,7 @@ import com.adaptris.annotation.InputFieldHint;
 import com.adaptris.core.AdaptrisConnectionImp;
 import com.adaptris.core.CoreException;
 import com.adaptris.interlok.util.Closer;
+import com.adaptris.security.exc.PasswordException;
 import com.adaptris.security.password.Password;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
@@ -156,16 +157,7 @@ public class CassandraConnection extends AdaptrisConnectionImp {
   @Override
   protected void startConnection() throws CoreException {
     try {
-      HostAndPort hostAndPort = hostAndPort();
-      CqlSessionBuilder sessionBuilder = CqlSession.builder()
-          .addContactPoint(InetSocketAddress.createUnresolved(hostAndPort.getHost(), hostAndPort.getPortOrDefault(DEFAULT_PORT)))
-          .withLocalDatacenter(localDatacenter());
-
-      if (StringUtils.isNoneEmpty(getUsername(), getPassword())) {
-        sessionBuilder.withAuthCredentials(getUsername(), Password.decode(getPassword()));
-      }
-
-      session = sessionBuilder.withKeyspace(getKeyspace()).build();
+      session = sessionBuilder().build();
       Metadata metadata = session.getMetadata();
       log.debug("Connected to cluster: {}", metadata.getClusterName());
       for (Node node : metadata.getNodes().values()) {
@@ -174,6 +166,20 @@ public class CassandraConnection extends AdaptrisConnectionImp {
     } catch (Exception ex) {
       throw new CoreException(ex);
     }
+  }
+
+  CqlSessionBuilder sessionBuilder() throws PasswordException {
+    HostAndPort hostAndPort = hostAndPort();
+
+    CqlSessionBuilder sessionBuilder = CqlSession.builder()
+        .addContactPoint(InetSocketAddress.createUnresolved(hostAndPort.getHost(), hostAndPort.getPortOrDefault(DEFAULT_PORT)))
+        .withLocalDatacenter(localDatacenter());
+
+    if (StringUtils.isNoneEmpty(getUsername(), getPassword())) {
+      sessionBuilder.withAuthCredentials(getUsername(), Password.decode(getPassword()));
+    }
+
+    return sessionBuilder.withKeyspace(getKeyspace());
   }
 
   HostAndPort hostAndPort() {

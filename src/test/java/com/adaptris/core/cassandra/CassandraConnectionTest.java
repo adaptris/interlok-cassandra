@@ -32,4 +32,24 @@ public class CassandraConnectionTest {
     assertThrows(IllegalArgumentException.class, () -> tmpConnection.hostAndPort().getHost());
   }
 
+  @Test
+  public void testSessionBuilder() throws Exception {
+    CassandraConnection tmpConnection = new CassandraConnection();
+    tmpConnection.setConnectionUrl("localhost");
+
+    // We can't really assert anything but it doesn't fail
+    tmpConnection.sessionBuilder();
+  }
+
+  @Test
+  public void testSessionBuilderWithCredentials() throws Exception {
+    CassandraConnection tmpConnection = new CassandraConnection();
+    tmpConnection.setConnectionUrl("localhost");
+    tmpConnection.setUsername("username");
+    tmpConnection.setPassword("password");
+
+    // We can't really assert anything but it doesn't fail
+    tmpConnection.sessionBuilder();
+  }
+
 }
