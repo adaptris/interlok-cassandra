@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
+import com.adaptris.annotation.InputFieldDefault;
 import com.adaptris.annotation.InputFieldHint;
 import com.adaptris.core.AdaptrisConnectionImp;
 import com.adaptris.core.CoreException;
@@ -101,6 +102,7 @@ public class CassandraConnection extends AdaptrisConnectionImp {
    * @param localDatacenter
    *          the local datacenter name to use for this Cassandra node
    */
+  @InputFieldDefault("datacenter1")
   @Getter
   @Setter
   private String localDatacenter;
