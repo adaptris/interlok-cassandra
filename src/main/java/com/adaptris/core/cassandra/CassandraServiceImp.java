@@ -17,7 +17,7 @@ import com.adaptris.core.cassandra.params.StatementPrimer;
 import com.adaptris.core.services.jdbc.StatementParameterList;
 import com.adaptris.core.util.LifecycleHelper;
 import com.adaptris.interlok.config.DataInputParameter;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
 
 /**
  * <p>
@@ -54,14 +54,14 @@ public abstract class CassandraServiceImp extends ServiceImp implements Connecte
   @Override
   public void doService(AdaptrisMessage message) throws ServiceException {
     try {
-      Session session = getConnection().retrieveConnection(CassandraConnection.class).getSession();
+      CqlSession session = getConnection().retrieveConnection(CassandraConnection.class).getSession();
       doCassandraService(session, message);
-    } catch(Exception ex) {
+    } catch (Exception ex) {
       throw new ServiceException(ex);
     }
   }
 
-  protected abstract void doCassandraService(Session session, AdaptrisMessage message) throws Exception;
+  protected abstract void doCassandraService(CqlSession session, AdaptrisMessage message) throws Exception;
 
   @Override
   public void prepare() throws CoreException {

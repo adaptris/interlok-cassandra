@@ -2,6 +2,7 @@ package com.adaptris.core.cassandra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ public class CassandraExecuteServiceTest extends CassandraCase {
 
   @Test
   public void testSimpleInsert() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
           "insert into liverpool_transfers(player, amount, club, manager) "
               + "values ('Fred', 10, 'Accrington Stanley', 'Brendan Rogers')");
@@ -66,12 +67,12 @@ public class CassandraExecuteServiceTest extends CassandraCase {
       shutdown(service, verifyService);
 
       assertEquals("Accrington Stanley", message.getMetadataValue("Cassandra_club"));
-    }
+    });
   }
 
   @Test
   public void testSimpleInsertAndDelete() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       ConstantDataInputParameter deleteStatement = new ConstantDataInputParameter("delete from liverpool_transfers where player = 'Fred'");
 
       ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
@@ -97,12 +98,12 @@ public class CassandraExecuteServiceTest extends CassandraCase {
       assertNull(deleteServiceMessage.getMetadataValue("Cassandra_club"));
 
       shutdown(service, verifyService);
-    }
+    });
   }
 
   @Test
   public void testSimpleInsertWithParameters() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       ConstantDataInputParameter insertStatement = new ConstantDataInputParameter(
           "insert into liverpool_transfers(player, amount, club, manager) values (?, ?, ?, ?)");
       message.addMessageHeader("player", "Fred");
@@ -152,7 +153,7 @@ public class CassandraExecuteServiceTest extends CassandraCase {
       assertEquals("Accrington Stanley", message.getMetadataValue("Cassandra_club"));
       assertEquals("10", message.getMetadataValue("Cassandra_amount"));
       assertEquals("Brendan Rogers", message.getMetadataValue("Cassandra_manager"));
-    }
+    });
   }
 
   @Override

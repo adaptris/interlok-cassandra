@@ -1,18 +1,30 @@
 package com.adaptris.core.cassandra;
 
+import java.net.InetSocketAddress;
+
+import javax.validation.constraints.NotBlank;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
+import com.adaptris.annotation.InputFieldDefault;
 import com.adaptris.annotation.InputFieldHint;
 import com.adaptris.core.AdaptrisConnectionImp;
 import com.adaptris.core.CoreException;
 import com.adaptris.interlok.util.Closer;
+import com.adaptris.security.exc.PasswordException;
 import com.adaptris.security.password.Password;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.Host;
-import com.datastax.driver.core.Metadata;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.metadata.Metadata;
+import com.datastax.oss.driver.api.core.metadata.Node;
+import com.datastax.oss.driver.shaded.guava.common.net.HostAndPort;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>
@@ -62,81 +74,39 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @DisplayOrder(order = { "connectionUrl", "keyspace", "username", "password" })
 public class CassandraConnection extends AdaptrisConnectionImp {
 
-  private transient Cluster cluster;
+  static final int DEFAULT_PORT = 9042;
+  static final String DEFAULT_DATACENTER_NAME = "datacenter1";
 
-  private transient Session session;
-
-  private String connectionUrl;
-
-  private String keyspace;
-
-  private String username;
-  @InputFieldHint(style = "PASSWORD")
-  private String password;
-
-  @Override
-  protected void prepareConnection() throws CoreException {
-  }
-
-  @Override
-  protected void closeConnection() {
-    setCluster(null);
-  }
-
-  @Override
-  protected void initConnection() throws CoreException {
-  }
-
-  @Override
-  protected void startConnection() throws CoreException {
-    try {
-      setCluster(Cluster.builder()
-          .addContactPoint(getConnectionUrl())
-          .withCredentials(getUsername(), Password.decode(getPassword()))
-          .build());
-      Metadata metadata = cluster.getMetadata();
-      log.debug("Connected to cluster: {}", metadata.getClusterName());
-      for (Host host : metadata.getAllHosts()) {
-        log.debug("Datatacenter: {} Host: {} Rack: {}", host.getDatacenter(), host.getEndPoint().resolve().getAddress(), host.getRack());
-      }
-      setSession(getCluster().connect(getKeyspace()));
-    } catch (Exception ex) {
-      throw new CoreException(ex);
-    }
-  }
-
-  @Override
-  protected void stopConnection() {
-    Closer.closeQuietly(cluster);
-  }
-
-  public String getConnectionUrl() {
-    return connectionUrl;
-  }
+  @Getter
+  private transient CqlSession session;
 
   /**
    * <p>
-   * Sets the connection string to use for this Cassandra source. e.g. localhost
+   * Sets the connection string to use for this Cassandra source. e.g. localhost, localhost:9042. The default port '9042' is used if the
+   * port is specified.
    * </p>
    *
    * @param connectionUrl
    *          the connection string to use for this Cassandra source
    */
-  public void setConnectionUrl(String connectionUrl) {
-    this.connectionUrl = connectionUrl;
-  }
+  @NotBlank
+  @Getter
+  @Setter
+  private String connectionUrl;
 
-  public Cluster getCluster() {
-    return cluster;
-  }
-
-  public void setCluster(Cluster cluster) {
-    this.cluster = cluster;
-  }
-
-  public String getKeyspace() {
-    return keyspace;
-  }
+  /**
+   * <p>
+   * Sets the Cassandra datacenter that is considered "local" by the load balancing policy. If left empty the default 'datacenter1' will be
+   * used.
+   * </p>
+   *
+   * @param localDatacenter
+   *          the local datacenter name to use for this Cassandra node
+   */
+  @InputFieldDefault("datacenter1")
+  @Getter
+  @Setter
+  private String localDatacenter;
 
   /**
    * <p>
@@ -147,26 +117,18 @@ public class CassandraConnection extends AdaptrisConnectionImp {
    * @param keyspace
    *          the keyspace to use for this Cassandra node
    */
-  public void setKeyspace(String keyspace) {
-    this.keyspace = keyspace;
-  }
-
-  public String getUsername() {
-    return username;
-  }
+  @Getter
+  @Setter
+  private String keyspace;
 
   /**
    * Set the username used to access the Cassandra database.
    *
    * @param username
    */
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
+  @Getter
+  @Setter
+  private String username;
 
   /**
    * Set the password used to access the Cassandra database.
@@ -174,15 +136,66 @@ public class CassandraConnection extends AdaptrisConnectionImp {
    * @param password
    *          the password which might be encoded using an available password scheme from {@link com.adaptris.security.password.Password}
    */
-  public void setPassword(String password) {
-    this.password = password;
+  @InputFieldHint(style = "PASSWORD")
+  @Getter
+  @Setter
+  private String password;
+
+  @Override
+  protected void prepareConnection() throws CoreException {
   }
 
-  public Session getSession() {
-    return session;
+  @Override
+  protected void closeConnection() {
+    setSession(null);
   }
 
-  public void setSession(Session session) {
+  @Override
+  protected void initConnection() throws CoreException {
+  }
+
+  @Override
+  protected void startConnection() throws CoreException {
+    try {
+      session = sessionBuilder().build();
+      Metadata metadata = session.getMetadata();
+      log.debug("Connected to cluster: {}", metadata.getClusterName());
+      for (Node node : metadata.getNodes().values()) {
+        log.debug("Datatacenter: {} Host: {} Rack: {}", node.getDatacenter(), node.getEndPoint().resolve().toString(), node.getRack());
+      }
+    } catch (Exception ex) {
+      throw new CoreException(ex);
+    }
+  }
+
+  CqlSessionBuilder sessionBuilder() throws PasswordException {
+    HostAndPort hostAndPort = hostAndPort();
+
+    CqlSessionBuilder sessionBuilder = CqlSession.builder()
+        .addContactPoint(InetSocketAddress.createUnresolved(hostAndPort.getHost(), hostAndPort.getPortOrDefault(DEFAULT_PORT)))
+        .withLocalDatacenter(localDatacenter());
+
+    if (StringUtils.isNoneEmpty(getUsername(), getPassword())) {
+      sessionBuilder.withAuthCredentials(getUsername(), Password.decode(getPassword()));
+    }
+
+    return sessionBuilder.withKeyspace(getKeyspace());
+  }
+
+  HostAndPort hostAndPort() {
+    return HostAndPort.fromString(getConnectionUrl());
+  }
+
+  private String localDatacenter() {
+    return StringUtils.defaultIfBlank(getLocalDatacenter(), DEFAULT_DATACENTER_NAME);
+  }
+
+  @Override
+  protected void stopConnection() {
+    Closer.closeQuietly(session);
+  }
+
+  private void setSession(CqlSession session) {
     this.session = session;
   }
 

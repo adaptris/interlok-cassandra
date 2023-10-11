@@ -1,6 +1,7 @@
 package com.adaptris.core.cassandra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ public class CassandraQueryServiceTest extends CassandraCase {
 
   @Test
   public void testSimpleValueQuery() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = 'Xabi Alonso'"));
 
       startup(service);
@@ -52,14 +53,12 @@ public class CassandraQueryServiceTest extends CassandraCase {
       shutdown(service);
 
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
-    } else {
-      System.out.println("Skipping testSimpleValueQuery()");
-    }
+    });
   }
 
   @Test
   public void testSimpleRowQuery() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       service.setStatement(new ConstantDataInputParameter("select * from liverpool_transfers where player = 'Xabi Alonso'"));
 
       startup(service);
@@ -70,14 +69,12 @@ public class CassandraQueryServiceTest extends CassandraCase {
       assertEquals("10700000", message.getMetadataValue("Cassandra_amount"));
       assertEquals("Rafael Benitez", message.getMetadataValue("Cassandra_manager"));
       assertEquals("Xabi Alonso", message.getMetadataValue("Cassandra_player"));
-    } else {
-      System.out.println("Skipping testSimpleRowQuery()");
-    }
+    });
   }
 
   @Test
   public void testSimpleValueQueryWithSimpleParameter() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = ?"));
 
       StatementParameter parameter = new StatementParameter();
@@ -95,14 +92,12 @@ public class CassandraQueryServiceTest extends CassandraCase {
       shutdown(service);
 
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
-    } else {
-      System.out.println("Skipping testSimpleValueQueryWithSimpleParameter()");
-    }
+    });
   }
 
   @Test
   public void testSimpleValueQueryWithNamedParameter() throws Exception {
-    if (testsEnabled) {
+    assumingThat(testsEnabled, () -> {
       service.setStatement(new ConstantDataInputParameter("select club from liverpool_transfers where player = #playername"));
 
       StatementParameter parameter = new StatementParameter();
@@ -121,9 +116,7 @@ public class CassandraQueryServiceTest extends CassandraCase {
       shutdown(service);
 
       assertEquals("Real Sociedad", message.getMetadataValue("Cassandra_club"));
-    } else {
-      System.out.println("Skipping testSimpleValueQueryWithNamedParameter()");
-    }
+    });
   }
 
   @Override

@@ -1,12 +1,14 @@
 package com.adaptris.core.cassandra;
 
+import java.net.InetSocketAddress;
+
 import com.adaptris.core.CoreException;
 import com.adaptris.core.Service;
 import com.adaptris.core.util.LifecycleHelper;
 import com.adaptris.interlok.junit.scaffolding.services.ExampleServiceCase;
 import com.adaptris.interlok.util.Closer;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.shaded.guava.common.net.HostAndPort;
 
 public abstract class CassandraCase extends ExampleServiceCase {
 
@@ -23,9 +25,16 @@ public abstract class CassandraCase extends ExampleServiceCase {
    */
   public static final String TESTS_HOST_KEY = "CassandraServiceCase.host";
   /**
-   * Key in unit-test.properties that specifies the Cassandra keyspace (equivalent to database name (mysql) or schema (oracle)) used for these tests.
+   * Key in unit-test.properties that specifies the port of the Cassandra instance used to tests.
+   */
+  public static final String TESTS_PORT_KEY = "CassandraServiceCase.port";
+  /**
+   * Key in unit-test.properties that specifies the Cassandra keyspace (equivalent to database name (mysql) or schema (oracle)) used for
+   * these tests.
    */
   public static final String TESTS_KEYSPACE_KEY = "CassandraServiceCase.keyspace";
+
+  private static final String DATACENTER_NAME = "datacenter1";
 
   protected static final String TEST_USERNAME = "dba";
   protected static final String TEST_PASSWORD = "bacon";
@@ -40,38 +49,42 @@ public abstract class CassandraCase extends ExampleServiceCase {
   }
 
   static {
-    if(testEnabled()) {
-      Cluster cluster = null;
-      Session session = null;
+    if (testEnabled()) {
+      CqlSession session = null;
       try {
-        cluster = Cluster.builder()
-            .addContactPoint(PROPERTIES.getProperty(TESTS_HOST_KEY))
-            .withCredentials(TEST_USERNAME, TEST_PASSWORD)
+        HostAndPort hostAndPort = hostAndPort();
+        session = CqlSession.builder()
+            .addContactPoint(new InetSocketAddress(hostAndPort.getHost(), hostAndPort.getPortOrDefault(9042)))
+            .withLocalDatacenter(DATACENTER_NAME)
+            .withAuthCredentials(TEST_USERNAME, TEST_PASSWORD)
+            .withKeyspace(PROPERTIES.getProperty(TESTS_KEYSPACE_KEY))
             .build();
-
-        session = cluster.connect(PROPERTIES.getProperty(TESTS_KEYSPACE_KEY));
 
         try {
           session.execute("drop table " + PROPERTIES.getProperty(TESTS_KEYSPACE_KEY) + ".liverpool_transfers");
         } catch (Exception ex) {
-          // ignored if the table doesn;t exist
+          // Ignored if the table doesn't exist
         }
-        session.execute("create table " + PROPERTIES.getProperty(TESTS_KEYSPACE_KEY) + ".liverpool_transfers (\n"
+        session.execute("create table "
+            + PROPERTIES.getProperty(TESTS_KEYSPACE_KEY)
+            + ".liverpool_transfers (\n"
             + "player text,\n"
             + "amount int,\n"
             + "club text,\n"
             + "manager text,\n"
             + "PRIMARY KEY(player));");
 
-        session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Djibril Cisse', 'AJ Auxerre',14500000,'Gerard Houllier')");
-        session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Emile Heskey', 'Leicester City',11000000,'Gerard Houllier')");
-        session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Xabi Alonso', 'Real Sociedad',10700000,'Rafael Benitez')");
-
+        session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Djibril Cisse', 'AJ Auxerre', 14500000, 'Gerard Houllier')");
+        session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Emile Heskey', 'Leicester City', 11000000, 'Gerard Houllier')");
+        session.execute("INSERT INTO liverpool_transfers (player, club, amount, manager) VALUES ('Xabi Alonso', 'Real Sociedad' ,10700000, 'Rafael Benitez')");
       } finally {
         Closer.closeQuietly(session);
-        Closer.closeQuietly(cluster);
       }
     }
+  }
+
+  private static HostAndPort hostAndPort() {
+    return HostAndPort.fromString(PROPERTIES.getProperty(TESTS_HOST_KEY));
   }
 
   private static boolean testEnabled() {
