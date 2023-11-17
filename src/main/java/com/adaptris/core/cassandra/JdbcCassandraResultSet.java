@@ -2,15 +2,14 @@ package com.adaptris.core.cassandra;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 import com.adaptris.jdbc.JdbcResultRow;
 import com.adaptris.jdbc.JdbcResultSet;
 import com.adaptris.jdbc.ParameterValueType;
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.ColumnDefinitions.Definition;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinition;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
 
 public class JdbcCassandraResultSet implements JdbcResultSet {
 
@@ -30,39 +29,30 @@ public class JdbcCassandraResultSet implements JdbcResultSet {
 
   @Override
   public Iterable<JdbcResultRow> getRows() {
-    return new Iterable<>() {
+    return () -> new Iterator<>() {
 
       @Override
-      public Iterator<JdbcResultRow> iterator() {
-        return new Iterator<>() {
+      public JdbcResultRow next() {
+        Row nextRow = iterator.next();
+        JdbcResultRow result = new JdbcResultRow();
 
-          @Override
-          public JdbcResultRow next() {
-            Row nextRow = iterator.next();
-            JdbcResultRow result = new JdbcResultRow();
+        ColumnDefinitions columnDefinitions = nextRow.getColumnDefinitions();
+        for (ColumnDefinition definition : columnDefinitions) {
+          result.setFieldValue(definition.getName().asInternal(), nextRow.getObject(definition.getName()), (ParameterValueType) null);
+        }
 
-            ColumnDefinitions columnDefinitions = nextRow.getColumnDefinitions();
-            List<Definition> asList = columnDefinitions.asList();
-            for(Definition definition : asList) {
-              result.setFieldValue(definition.getName(), nextRow.getObject(definition.getName()),
-                  (ParameterValueType) null);
-            }
-
-            return result;
-          }
-
-          @Override
-          public boolean hasNext() {
-            return iterator.hasNext();
-          }
-
-          @Override
-          public void remove() {
-            iterator.remove();
-          }
-        };
+        return result;
       }
 
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public void remove() {
+        iterator.remove();
+      }
     };
   }
 

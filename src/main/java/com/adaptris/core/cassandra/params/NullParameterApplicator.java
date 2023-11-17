@@ -4,9 +4,9 @@ import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ServiceException;
 import com.adaptris.core.services.jdbc.StatementParameterCollection;
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.BoundStatement;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -23,14 +23,14 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class NullParameterApplicator extends AbstractCassandraParameterApplicator {
 
   @Override
-  public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
+  public BoundStatement applyParameters(CqlSession session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
     PreparedStatement preparedStatement;
     try {
       preparedStatement = prepareStatement(session, statement);
     } catch (Exception e) {
       throw new ServiceException(e);
     }
-    return new BoundStatement(preparedStatement);
+    return preparedStatement.bind(parameters.toArray());
   }
 
 }

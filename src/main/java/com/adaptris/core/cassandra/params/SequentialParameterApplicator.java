@@ -7,9 +7,9 @@ import com.adaptris.core.ServiceException;
 import com.adaptris.core.services.jdbc.JdbcStatementParameter;
 import com.adaptris.core.services.jdbc.StatementParameter;
 import com.adaptris.core.services.jdbc.StatementParameterCollection;
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.BoundStatement;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -29,25 +29,23 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class SequentialParameterApplicator extends AbstractCassandraParameterApplicator {
 
   @Override
-  public BoundStatement applyParameters(Session session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
+  public BoundStatement applyParameters(CqlSession session, AdaptrisMessage message, StatementParameterCollection parameters, String statement) throws ServiceException {
     Object[] parameterArray = new Object[parameters.size()];
     int counter = 0;
 
-    for(JdbcStatementParameter jdbcParam : parameters) {
+    for (JdbcStatementParameter jdbcParam : parameters) {
       StatementParameter sParam = (StatementParameter) jdbcParam;
       parameterArray[counter] = ParameterHelper.convertToQueryClass(sParam.getQueryValue(message), sParam.getQueryClass());
-      counter ++;
+      counter++;
     }
 
     PreparedStatement preparedStatement;
     try {
       preparedStatement = prepareStatement(session, statement);
-    } catch (Exception e) {
-      throw new ServiceException(e);
+    } catch (Exception expt) {
+      throw new ServiceException(expt);
     }
-    BoundStatement boundStatement = new BoundStatement(preparedStatement);
-
-    return boundStatement.bind(parameterArray);
+    return preparedStatement.bind(parameterArray);
   }
 
 }

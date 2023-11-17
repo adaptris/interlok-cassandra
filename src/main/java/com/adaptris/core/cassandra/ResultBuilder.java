@@ -2,7 +2,7 @@ package com.adaptris.core.cassandra;
 
 import com.adaptris.jdbc.JdbcResult;
 import com.adaptris.jdbc.JdbcResultSet;
-import com.datastax.driver.core.ResultSet;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
 
 public class ResultBuilder {
 

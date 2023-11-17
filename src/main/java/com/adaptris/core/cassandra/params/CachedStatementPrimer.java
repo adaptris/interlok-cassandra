@@ -5,20 +5,21 @@ import java.util.List;
 
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.ComponentProfile;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * <p>
- * This {@link StatementPrimer} will cache a number of CQL statements, therefore not needing to prepare a statement that has
- * already been prepared.
+ * This {@link StatementPrimer} will cache a number of CQL statements, therefore not needing to prepare a statement that has already been
+ * prepared.
  * </p>
  * <p>
  * Use this StatementPrimer when you know you will execute identical statements over and over.
  * </p>
  * <p>
  * Finally you can configure the number of cached statements (the default being 50) by configuring the "cache-limit";
+ *
  * <pre>
  * {@code
  <cached-statement-primer>
@@ -42,21 +43,21 @@ public class CachedStatementPrimer implements StatementPrimer {
   private int cacheLimit;
 
   public CachedStatementPrimer() {
-    setStatements(new ArrayList<PrimedStatement>());
+    setStatements(new ArrayList<>());
     setCacheLimit(50);
   }
 
   @Override
-  public PreparedStatement prepareStatement(Session session, String statement) throws Exception {
+  public PreparedStatement prepareStatement(CqlSession session, String statement) throws Exception {
     int statementIndex = getStatements().indexOf(new PrimedStatement(statement, null));
-    if(statementIndex > -1) {
+    if (statementIndex > -1) {
       return getStatements().get(statementIndex).getPreparedStatement();
     }
 
     PreparedStatement preparedStatement = session.prepare(statement);
 
     PrimedStatement primedStatement = new PrimedStatement(statement, preparedStatement);
-    if(statements.size() >= getCacheLimit()) {
+    if (statements.size() >= getCacheLimit()) {
       getStatements().remove(0);
     }
     getStatements().add(primedStatement);

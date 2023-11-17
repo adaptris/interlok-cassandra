@@ -1,23 +1,23 @@
 package com.adaptris.core.cassandra.params;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adaptris.interlok.util.Closer;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 
 public class CachedStatementPrimerTest {
 
   @Mock
-  private Session mockSession;
+  private CqlSession mockSession;
 
   @Mock
   private PreparedStatement mockPreparedStatement;
@@ -26,7 +26,7 @@ public class CachedStatementPrimerTest {
 
   private CachedStatementPrimer statementPrimer;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     statementPrimer = new CachedStatementPrimer();
     openMocks = MockitoAnnotations.openMocks(this);
@@ -34,7 +34,7 @@ public class CachedStatementPrimerTest {
     when(mockSession.prepare(anyString())).thenReturn(mockPreparedStatement);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     Closer.closeQuietly(openMocks);
   }
