@@ -178,7 +178,7 @@ dependencies {
   implementation (platform("com.fasterxml.jackson:jackson-bom:$jacksonVersion"))
   api ("com.fasterxml.jackson.core:jackson-databind")
   api ("com.fasterxml.jackson.core:jackson-core")
-  api ("com.google.guava:guava:33.2.0-jre")
+  api ("com.google.guava:guava:33.2.1-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
   umlDoclet("nl.talsmasoftware:umldoclet:2.1.2")
 
