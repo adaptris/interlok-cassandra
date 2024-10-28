@@ -180,7 +180,7 @@ dependencies {
   api ("com.fasterxml.jackson.core:jackson-core")
   api ("com.google.guava:guava:33.3.1-jre")
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") {changing= true}
-  umlDoclet("nl.talsmasoftware:umldoclet:2.2.0")
+  umlDoclet("nl.talsmasoftware:umldoclet:2.2.1")
 
   testImplementation ('junit:junit:4.13.2')
   testImplementation ("org.slf4j:slf4j-simple:$slf4jVersion")
