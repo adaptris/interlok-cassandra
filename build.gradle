@@ -366,8 +366,6 @@ dependencyCheck  {
   }
   analyzers {
     assemblyEnabled=false
-    
-    
   }
 }
 
